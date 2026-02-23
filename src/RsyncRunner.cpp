@@ -2,17 +2,40 @@
 
 #include <algorithm>
 #include <cctype>
-#include <cstdlib>
-#include <filesystem>
-#include <regex>
-#include <sys/wait.h>
+#include <string>
+#include <vector>
 
-#ifdef _WIN32
-#include <windows.h>
-#else
-#include <csignal>
-#include <unistd.h>
-#endif
+#include <QDir>
+#include <QFileInfo>
+#include <QProcess>
+#include <QStandardPaths>
+#include <QTimer>
+
+RsyncRunner::RsyncRunner() : process_(new QProcess()), running_(false) {
+    process_->setProcessChannelMode(QProcess::MergedChannels);
+
+    QObject::connect(process_, &QProcess::readyReadStandardOutput, [this]() {
+        handle_ready_read();
+    });
+
+    QObject::connect(
+        process_,
+        qOverload<int, QProcess::ExitStatus>(&QProcess::finished),
+        [this](int exit_code, QProcess::ExitStatus exit_status) {
+            handle_finished(exit_code, static_cast<int>(exit_status));
+        });
+}
+
+RsyncRunner::~RsyncRunner() {
+    if (process_ != nullptr) {
+        if (process_->state() != QProcess::NotRunning) {
+            process_->kill();
+            process_->waitForFinished(1000);
+        }
+        delete process_;
+        process_ = nullptr;
+    }
+}
 
 void RsyncRunner::set_output_callback(OutputCallback callback) {
     output_callback_ = std::move(callback);
@@ -26,6 +49,13 @@ void RsyncRunner::set_finished_callback(FinishedCallback callback) {
     finished_callback_ = std::move(callback);
 }
 
+bool RsyncRunner::ensure_rsync_available(std::string& error) {
+    if (!rsync_executable_.empty()) {
+        return true;
+    }
+    return resolve_rsync_executable(error);
+}
+
 bool RsyncRunner::start(const std::string& origin, const std::string& destination, std::string& error) {
     if (running_) {
         error = "A synchronization is already running.";
@@ -36,191 +66,88 @@ bool RsyncRunner::start(const std::string& origin, const std::string& destinatio
         return false;
     }
 
-    std::vector<std::string> argv{
-        rsync_executable_,
-        "-aP",
-        "--delete",
-        normalize_rsync_path(origin),
-        normalize_rsync_path(destination),
-    };
+    QStringList args;
+    args << "-a"
+         << "-v"
+         << "-P"
+         << "--info=progress2"
+         << "--delete"
+         << QString::fromStdString(normalize_rsync_path(origin))
+         << QString::fromStdString(normalize_rsync_path(destination));
 
-    int stdin_fd = -1;
-    int stderr_fd = -1;
-
-    try {
-        Glib::spawn_async_with_pipes(
-            ".",
-            argv,
-            Glib::SpawnFlags::SPAWN_SEARCH_PATH | Glib::SpawnFlags::SPAWN_DO_NOT_REAP_CHILD,
-            sigc::slot<void()>(),
-            &child_pid_,
-            &stdin_fd,
-            &stdout_fd_,
-            &stderr_fd);
-    } catch (const Glib::Error& exc) {
-        error = exc.what();
+    process_->start(QString::fromStdString(rsync_executable_), args);
+    if (!process_->waitForStarted()) {
+        error = process_->errorString().toStdString();
         return false;
     }
-
-    if (stdin_fd >= 0) {
-        ::close(stdin_fd);
-    }
-    if (stderr_fd >= 0) {
-        ::close(stderr_fd);
-    }
-
-    stdout_channel_ = Glib::IOChannel::create_from_fd(stdout_fd_);
-    stdout_channel_->set_encoding("");
-    stdout_channel_->set_buffered(false);
-
-    io_watch_connection_ = Glib::signal_io().connect(
-        sigc::mem_fun(*this, &RsyncRunner::on_stdout_io),
-        stdout_channel_,
-        Glib::IO_IN | Glib::IO_HUP | Glib::IO_ERR);
-
-    Glib::signal_child_watch().connect(sigc::mem_fun(*this, &RsyncRunner::on_child_exit), child_pid_);
 
     running_ = true;
     return true;
 }
 
 void RsyncRunner::cancel() {
-    if (!running_ || child_pid_ == 0) {
+    if (!running_) {
         return;
     }
-#ifdef _WIN32
-    ::TerminateProcess(reinterpret_cast<HANDLE>(child_pid_), 1);
-#else
-    ::kill(child_pid_, SIGTERM);
-#endif
+    process_->terminate();
+    QTimer::singleShot(1200, process_, [this]() {
+        if (running_ && process_->state() != QProcess::NotRunning) {
+            process_->kill();
+        }
+    });
 }
 
 bool RsyncRunner::is_running() const {
     return running_;
 }
 
-bool RsyncRunner::on_stdout_io(Glib::IOCondition condition) {
-    if ((condition & Glib::IO_ERR) == Glib::IO_ERR) {
-        return false;
-    }
-
-    if ((condition & Glib::IO_IN) == Glib::IO_IN) {
-        Glib::ustring line;
-        Glib::IOStatus status = stdout_channel_->read_line(line);
-        if (status == Glib::IO_STATUS_NORMAL) {
-            if (output_callback_) {
-                output_callback_(line.raw());
-            }
-            emit_progress_if_present(line.raw());
-        }
-    }
-
-    if ((condition & Glib::IO_HUP) == Glib::IO_HUP) {
-        return false;
-    }
-
-    return true;
-}
-
-void RsyncRunner::on_child_exit(Glib::Pid pid, int status) {
-    running_ = false;
-
-    bool signaled = WIFSIGNALED(status);
-    int exit_code = -1;
-    if (WIFEXITED(status)) {
-        exit_code = WEXITSTATUS(status);
-    }
-
-    if (finished_callback_) {
-        finished_callback_(exit_code, signaled);
-    }
-
-    if (pid != 0) {
-        Glib::spawn_close_pid(pid);
-    }
-
-    reset_handles();
-}
-
-void RsyncRunner::reset_handles() {
-    if (io_watch_connection_.connected()) {
-        io_watch_connection_.disconnect();
-    }
-
-    stdout_channel_.reset();
-
-    if (stdout_fd_ >= 0) {
-        ::close(stdout_fd_);
-    }
-
-    stdout_fd_ = -1;
-    child_pid_ = 0;
-}
-
-void RsyncRunner::emit_progress_if_present(const std::string& line) {
-    std::smatch match;
-    if (!std::regex_search(line, match, percent_regex_) || match.size() < 2) {
-        return;
-    }
-
-    int percent = std::stoi(match[1].str());
-    if (progress_callback_) {
-        progress_callback_(percent);
-    }
-}
-
-bool RsyncRunner::ensure_rsync_available(std::string& error) {
-    if (!rsync_executable_.empty()) {
-        return true;
-    }
-    return resolve_rsync_executable(error);
-}
-
 bool RsyncRunner::resolve_rsync_executable(std::string& error) {
-    const char* env_value = std::getenv("QUICK_BACKUP_RSYNC");
-    if (env_value != nullptr && *env_value != '\0') {
-        const std::string candidate = env_value;
-        if (std::filesystem::exists(candidate)) {
-            rsync_executable_ = candidate;
+    const QString env_value = qEnvironmentVariable("QUICK_BACKUP_RSYNC").trimmed();
+    if (!env_value.isEmpty()) {
+        QFileInfo env_file(env_value);
+        if (env_file.exists() && env_file.isFile()) {
+            rsync_executable_ = env_file.absoluteFilePath().toStdString();
             return true;
         }
-        error = "QUICK_BACKUP_RSYNC is set but does not point to a valid file: " + candidate;
+        error = "QUICK_BACKUP_RSYNC is set but does not point to a valid file: " +
+                env_value.toStdString();
         return false;
     }
 
-    const std::string cwd = Glib::get_current_dir();
-    std::vector<std::string> bundled_candidates;
+    const QString cwd = QDir::currentPath();
+    std::vector<QString> candidates;
 #ifdef _WIN32
-    bundled_candidates = {
-        Glib::build_filename(cwd, "runtime/bin/rsync.exe"),
-        Glib::build_filename(cwd, "msys2/usr/bin/rsync.exe"),
-        Glib::build_filename(cwd, "bin/rsync.exe"),
+    candidates = {
+        QDir(cwd).filePath("runtime/bin/rsync.exe"),
+        QDir(cwd).filePath("msys2/usr/bin/rsync.exe"),
+        QDir(cwd).filePath("bin/rsync.exe"),
     };
 #else
-    bundled_candidates = {
-        Glib::build_filename(cwd, "runtime/bin/rsync"),
-        Glib::build_filename(cwd, "bin/rsync"),
+    candidates = {
+        QDir(cwd).filePath("runtime/bin/rsync"),
+        QDir(cwd).filePath("bin/rsync"),
     };
 #endif
 
-    for (const auto& candidate : bundled_candidates) {
-        if (std::filesystem::exists(candidate)) {
-            rsync_executable_ = candidate;
+    for (const QString& candidate : candidates) {
+        QFileInfo info(candidate);
+        if (info.exists() && info.isFile()) {
+            rsync_executable_ = info.absoluteFilePath().toStdString();
             return true;
         }
     }
 
 #ifdef _WIN32
-    std::string from_path = Glib::find_program_in_path("rsync.exe");
-    if (from_path.empty()) {
-        from_path = Glib::find_program_in_path("rsync");
+    QString from_path = QStandardPaths::findExecutable("rsync.exe");
+    if (from_path.isEmpty()) {
+        from_path = QStandardPaths::findExecutable("rsync");
     }
 #else
-    const std::string from_path = Glib::find_program_in_path("rsync");
+    const QString from_path = QStandardPaths::findExecutable("rsync");
 #endif
 
-    if (!from_path.empty()) {
-        rsync_executable_ = from_path;
+    if (!from_path.isEmpty()) {
+        rsync_executable_ = from_path.toStdString();
         return true;
     }
 
@@ -247,4 +174,102 @@ std::string RsyncRunner::normalize_rsync_path(const std::string& path) const {
     }
     return normalized;
 #endif
+}
+
+namespace {
+
+std::string ltrim_copy(const std::string& value) {
+    const auto begin = std::find_if(value.begin(), value.end(), [](unsigned char ch) {
+        return !std::isspace(ch);
+    });
+    return std::string(begin, value.end());
+}
+
+}  // namespace
+
+void RsyncRunner::handle_ready_read() {
+    const QByteArray data = process_->readAllStandardOutput();
+    if (data.isEmpty()) {
+        return;
+    }
+
+    pending_output_ += QString::fromUtf8(data).toStdString();
+
+    while (true) {
+        const std::size_t line_end = pending_output_.find_first_of("\r\n");
+        if (line_end == std::string::npos) {
+            break;
+        }
+
+        const std::string line = pending_output_.substr(0, line_end);
+
+        std::size_t consume_end = line_end + 1;
+        while (consume_end < pending_output_.size() &&
+               (pending_output_[consume_end] == '\r' || pending_output_[consume_end] == '\n')) {
+            ++consume_end;
+        }
+        pending_output_.erase(0, consume_end);
+
+        emit_filtered_line(line);
+    }
+}
+
+void RsyncRunner::handle_finished(int exit_code, int exit_status) {
+    if (!pending_output_.empty()) {
+        emit_filtered_line(pending_output_);
+        pending_output_.clear();
+    }
+
+    running_ = false;
+
+    const bool signaled = (exit_status == static_cast<int>(QProcess::CrashExit));
+    if (finished_callback_) {
+        finished_callback_(exit_code, signaled);
+    }
+}
+
+void RsyncRunner::emit_filtered_line(const std::string& line) {
+    if (line.empty()) {
+        return;
+    }
+
+    int percent = 0;
+    std::string display_line;
+    if (parse_overall_progress_line(line, percent, display_line)) {
+        if (progress_callback_) {
+            progress_callback_(percent, display_line);
+        }
+        return;
+    }
+
+    if (is_filelist_progress_noise(line)) {
+        return;
+    }
+
+    if (output_callback_) {
+        output_callback_(line + "\n");
+    }
+}
+
+bool RsyncRunner::parse_overall_progress_line(
+    const std::string& line,
+    int& percent,
+    std::string& display_line) const {
+    // Parse `progress2` lines with ir-chk/to-chk as progress-only UI updates.
+    if (!std::regex_search(line, overall_with_checks_regex_)) {
+        return false;
+    }
+
+    std::smatch match;
+    if (!std::regex_search(line, match, percent_regex_) || match.size() < 2) {
+        return false;
+    }
+
+    percent = std::stoi(match[1].str());
+    display_line = ltrim_copy(line);
+    return true;
+}
+
+bool RsyncRunner::is_filelist_progress_noise(const std::string& line) const {
+    return std::regex_search(line, filelist_progress_noise_regex_);
 }

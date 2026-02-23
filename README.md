@@ -10,12 +10,12 @@ Runs the original PyGObject app:
 ./quick-backup.py
 ```
 
-## GTKmm version (C++)
+## Qt version (C++)
 
-The C++ port is split by concern:
+The C++ app is split by concern:
 
 - `src/main.cpp`: application startup and icon selection.
-- `src/MainWindow.hpp` + `src/MainWindow.cpp`: UI, validation, dialogs, and progress display.
+- `src/MainWindow.hpp` + `src/MainWindow.cpp`: Qt UI, validation, dialogs, and progress display.
 - `src/RsyncRunner.hpp` + `src/RsyncRunner.cpp`: rsync process lifecycle and output/progress parsing.
 
 ### Build
@@ -24,14 +24,14 @@ Requirements:
 
 - CMake 3.16+
 - A C++17 compiler
-- `gtkmm-3.0`
+- `Qt6 Widgets`
 
 Build and run:
 
 ```bash
 cmake -S . -B build
 cmake --build build
-./build/quick-backup-gtkmm
+./build/quick-backup-qt
 ```
 
 ### Build without CMake
@@ -40,7 +40,7 @@ If `cmake` is not installed, you can build directly with `make`:
 
 ```bash
 make
-./quick-backup-gtkmm
+./quick-backup-qt
 ```
 
 Useful targets:
@@ -48,9 +48,9 @@ Useful targets:
 - `make run`: build and launch
 - `make clean`: remove objects and binary
 
-## Windows rsync routine (GTKmm app)
+## Windows rsync routine (Qt app)
 
-For `quick-backup-gtkmm`, rsync is discovered in this order:
+For `quick-backup-qt`, rsync is discovered in this order:
 
 1. `QUICK_BACKUP_RSYNC` environment variable
 2. Bundled paths in the working directory:

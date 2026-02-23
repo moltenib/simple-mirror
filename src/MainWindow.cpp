@@ -1,193 +1,241 @@
 #include "MainWindow.hpp"
 
 #include <filesystem>
-#include <sstream>
+
+#include <QHBoxLayout>
+#include <QMessageBox>
+#include <QProgressBar>
+#include <QPushButton>
+#include <QSizePolicy>
+#include <QScreen>
+#include <QFontMetrics>
+#include <QTextEdit>
+#include <QTextCursor>
+#include <QVBoxLayout>
+#include <QWidget>
 
 namespace {
 
-constexpr const char* kAppCss = R"CSS(
-#main-window #main-box {
-  background: linear-gradient(180deg, #0b0b0b, #160707);
-  padding: 12px;
+const char* kAppStyle = R"QSS(
+#main-window {
+  background: qlineargradient(x1:0, y1:0, x2:0, y2:1, stop:0 #0b0b0b, stop:1 #160707);
 }
 
-#main-window #output-view {
-  background: #000000;
-  color: #ffffff;
-  border-radius: 8px;
-  border: 1px solid #ffffff;
-}
-
-#main-window #origin-label,
-#main-window #destination-label {
+QLabel#origin-label,
+QLabel#destination-label {
   color: #ffd6d6;
 }
 
-#main-window #origin-chooser,
-#main-window #destination-chooser,
-#main-window #sync-button {
+QLineEdit#origin-edit,
+QLineEdit#destination-edit {
   color: #ffe7e7;
-}
-
-#main-window #sync-button,
-#main-window #origin-chooser,
-#main-window #destination-chooser {
-  background-image: none;
   background-color: #2a0d0d;
   border: 1px solid #6f2020;
   border-radius: 6px;
+  padding: 4px;
 }
 
-#main-window #progress-bar trough {
-  min-height: 10px;
-  background-color: #1b1b1b;
-  border: 1px solid #4a1414;
+QPushButton#browse-origin,
+QPushButton#browse-destination,
+QPushButton#sync-button {
+  color: #ffe7e7;
+  background-color: #2a0d0d;
+  border: 1px solid #6f2020;
   border-radius: 6px;
+  padding: 6px 10px;
 }
 
-#main-window #progress-bar progress {
-  background-image: none;
-  background-color: #cc1f1f;
-  border-radius: 6px;
+QPushButton#browse-origin[syncRunning="true"],
+QPushButton#browse-destination[syncRunning="true"] {
+  color: #a9a9a9;
+  background-color: #2b2b2b;
+  border: 1px solid #4a4a4a;
 }
 
-#main-window #sync-button {
+QPushButton#browse-origin:disabled,
+QPushButton#browse-destination:disabled {
+  color: #a9a9a9;
+  background-color: #2b2b2b;
+  border: 1px solid #4a4a4a;
+}
+
+QPushButton#sync-button {
   font-weight: 700;
   background-color: #b51616;
   border: 1px solid #ff4d4d;
   color: #fff1f1;
 }
 
-#main-window #header-bar {
-  background-image: none;
-  background-color: #180909;
-  border-bottom: 1px solid #4a1414;
+QTextEdit#output-view {
+  background: #000000;
+  color: #ffffff;
+  border: 1px solid #ffffff;
+  border-radius: 8px;
+  margin: 0;
+  padding: 0;
 }
 
-#main-window #header-bar .title,
-#main-window #header-bar .subtitle {
-  color: #ffd6d6;
+QProgressBar#progress-bar {
+  color: #ffe7e7;
+  border: 1px solid #4a1414;
+  border-radius: 6px;
+  background: #1b1b1b;
+  text-align: center;
+  margin: 0;
+  padding: 0;
 }
-)CSS";
+
+QProgressBar#progress-bar::chunk {
+  background: #cc1f1f;
+  border-radius: 6px;
+}
+)QSS";
 
 }  // namespace
 
 MainWindow::MainWindow(const std::string& icon_name)
-    : Gtk::Window(Gtk::WINDOW_TOPLEVEL) {
-    set_title("Quick Back-Up");
-    set_name("main-window");
-    set_default_size(800, 600);
-    set_size_request(800, 600);
-    set_position(Gtk::WIN_POS_CENTER);
-    set_border_width(0);
+    : origin_chooser_(nullptr),
+      destination_chooser_(nullptr),
+      sync_button_(nullptr),
+      output_view_(nullptr),
+      progress_bar_(nullptr),
+      last_progress_percent_(-1),
+      cancel_requested_(false) {
+    setObjectName("main-window");
+    setWindowTitle("Quick Back-Up");
+    setMinimumSize(800, 600);
+    resize(800, 600);
 
     if (!icon_name.empty()) {
-        set_icon_name(icon_name);
+        setWindowIcon(QIcon::fromTheme(QString::fromStdString(icon_name)));
     }
 
-    auto* header = Gtk::make_managed<Gtk::HeaderBar>();
-    header->set_name("header-bar");
-    header->set_show_close_button(true);
-    header->set_title("Quick Back-Up");
-    set_titlebar(*header);
+    if (QScreen* screen = this->screen()) {
+        const QRect available = screen->availableGeometry();
+        move(
+            available.center().x() - (width() / 2),
+            available.center().y() - (height() / 2));
+    }
 
-    vbox_.set_name("main-box");
-    add(vbox_);
+    auto* central = new QWidget(this);
+    auto* main_layout = new QVBoxLayout(central);
+    main_layout->setContentsMargins(12, 12, 12, 12);
+    main_layout->setSpacing(6);
 
-    vbox_.pack_start(top_hbox_, Gtk::PACK_SHRINK, 0);
-    top_hbox_.pack_start(directory_vbox_, Gtk::PACK_EXPAND_WIDGET, 6);
+    auto* top_row = new QHBoxLayout();
+    top_row->setSpacing(6);
 
-    directory_vbox_.pack_start(origin_hbox_, Gtk::PACK_SHRINK, 6);
-    origin_label_.set_name("origin-label");
-    origin_label_.set_xalign(0.0f);
-    origin_hbox_.pack_start(origin_label_, Gtk::PACK_SHRINK, 6);
+    auto* directory_column = new QVBoxLayout();
+    directory_column->setSpacing(6);
 
-    origin_chooser_.set_name("origin-chooser");
-    origin_hbox_.pack_start(origin_chooser_, Gtk::PACK_EXPAND_WIDGET, 6);
+    origin_chooser_ = new DirectoryChooserWidget(
+        "Origin:",
+        "Select origin folder",
+        "origin-label",
+        "origin-edit",
+        "browse-origin",
+        central);
+    destination_chooser_ = new DirectoryChooserWidget(
+        "Destination:",
+        "Select destination folder",
+        "destination-label",
+        "destination-edit",
+        "browse-destination",
+        central);
 
-    directory_vbox_.pack_start(destination_hbox_, Gtk::PACK_SHRINK, 6);
-    destination_label_.set_name("destination-label");
-    destination_label_.set_xalign(0.0f);
-    destination_hbox_.pack_start(destination_label_, Gtk::PACK_SHRINK, 6);
+    directory_column->addWidget(origin_chooser_);
+    directory_column->addWidget(destination_chooser_);
 
-    destination_chooser_.set_name("destination-chooser");
-    destination_hbox_.pack_start(destination_chooser_, Gtk::PACK_EXPAND_WIDGET, 6);
+    sync_button_ = new QPushButton("Synchronize", central);
+    sync_button_->setObjectName("sync-button");
+    sync_button_->setSizePolicy(QSizePolicy::Fixed, QSizePolicy::Expanding);
+    const QFontMetrics metrics(sync_button_->font());
+    const int min_button_width = std::max(
+                                     metrics.horizontalAdvance("Synchronize"),
+                                     metrics.horizontalAdvance("Cancel")) +
+                                 32;
+    sync_button_->setMinimumWidth(min_button_width);
 
-    top_hbox_.pack_start(sync_button_vbox_, Gtk::PACK_SHRINK, 6);
-    sync_button_.set_name("sync-button");
-    sync_button_.signal_clicked().connect(sigc::mem_fun(*this, &MainWindow::on_sync_clicked));
-    sync_button_vbox_.pack_end(sync_button_, Gtk::PACK_EXPAND_WIDGET, 6);
+    auto* sync_column = new QVBoxLayout();
+    sync_column->setSpacing(6);
+    sync_column->addWidget(sync_button_);
 
-    vbox_.pack_start(middle_vbox_, Gtk::PACK_EXPAND_WIDGET, 0);
-    middle_vbox_.pack_start(output_vbox_, Gtk::PACK_EXPAND_WIDGET, 6);
+    top_row->addLayout(directory_column, 1);
+    top_row->addLayout(sync_column);
 
-    output_scrolled_.set_hexpand(true);
-    output_scrolled_.set_vexpand(true);
-    output_scrolled_.set_shadow_type(Gtk::SHADOW_NONE);
-    output_vbox_.pack_start(output_scrolled_, Gtk::PACK_EXPAND_WIDGET, 6);
+    output_view_ = new QTextEdit(central);
+    output_view_->setObjectName("output-view");
+    output_view_->setReadOnly(true);
 
-    output_view_.set_name("output-view");
-    output_view_.set_editable(false);
-    output_view_.set_cursor_visible(false);
-    output_view_.set_monospace(true);
+    progress_bar_ = new QProgressBar(central);
+    progress_bar_->setObjectName("progress-bar");
+    progress_bar_->setRange(0, 100);
+    progress_bar_->setValue(0);
+    progress_bar_->setFormat("Idle");
 
-    output_buffer_ = Gtk::TextBuffer::create();
-    output_view_.set_buffer(output_buffer_);
-    output_scrolled_.add(output_view_);
+    main_layout->addLayout(top_row);
+    main_layout->addWidget(output_view_, 1);
+    main_layout->addWidget(progress_bar_);
 
-    vbox_.pack_end(bottom_vbox_, Gtk::PACK_SHRINK, 0);
-    progress_bar_.set_name("progress-bar");
-    progress_bar_.set_show_text(true);
-    progress_bar_.set_text("Idle");
-    bottom_vbox_.pack_end(progress_bar_, Gtk::PACK_SHRINK, 6);
+    setCentralWidget(central);
+    apply_stylesheet();
 
-    runner_.set_output_callback([this](const std::string& line) { append_output(line); });
-    runner_.set_progress_callback([this](int percent) { on_progress(percent); });
-    runner_.set_finished_callback([this](int exit_code, bool signaled) {
-        on_runner_finished(exit_code, signaled);
+    QObject::connect(sync_button_, &QPushButton::clicked, [this]() { on_sync_clicked(); });
+
+    runner_.set_output_callback([this](const std::string& text) { append_output(text); });
+    runner_.set_progress_callback([this](int percent, const std::string& progress_line) {
+        if (percent > last_progress_percent_) {
+            last_progress_percent_ = percent;
+            progress_bar_->setValue(last_progress_percent_);
+        }
+        progress_bar_->setFormat(QString::fromStdString(progress_line));
     });
-
-    apply_css();
-    show_all_children();
+    runner_.set_finished_callback([this](int exit_code, bool signaled) {
+        if (cancel_requested_) {
+            progress_bar_->setFormat("Cancelled");
+        } else if (signaled) {
+            progress_bar_->setFormat("Cancelled");
+        } else if (exit_code == 0) {
+            progress_bar_->setValue(100);
+            progress_bar_->setFormat("Done");
+        } else {
+            progress_bar_->setFormat("Failed");
+            show_error(
+                "Synchronization failed with exit code " + std::to_string(exit_code) + ".",
+                "Synchronization failed");
+        }
+        cancel_requested_ = false;
+        set_running_state(false);
+    });
 }
 
-void MainWindow::apply_css() {
-    css_provider_ = Gtk::CssProvider::create();
-    css_provider_->load_from_data(kAppCss);
-
-    auto screen = Gdk::Screen::get_default();
-    if (screen) {
-        Gtk::StyleContext::add_provider_for_screen(
-            screen,
-            css_provider_,
-            GTK_STYLE_PROVIDER_PRIORITY_APPLICATION);
-    }
+void MainWindow::apply_stylesheet() {
+    setStyleSheet(kAppStyle);
 }
 
 void MainWindow::append_output(const std::string& text) {
-    auto end_iter = output_buffer_->end();
-    output_buffer_->insert(end_iter, text);
-
-    auto mark = output_buffer_->create_mark(output_buffer_->end());
-    output_view_.scroll_to(mark);
+    output_view_->moveCursor(QTextCursor::End);
+    output_view_->insertPlainText(QString::fromUtf8(text.c_str()));
+    output_view_->moveCursor(QTextCursor::End);
 }
 
 void MainWindow::set_running_state(bool running) {
-    sync_button_.set_sensitive(true);
-    sync_button_.set_label(running ? "Cancel" : "Synchronize");
-    origin_chooser_.set_sensitive(!running);
-    destination_chooser_.set_sensitive(!running);
+    sync_button_->setText(running ? "Cancel" : "Synchronize");
+    origin_chooser_->setChooserEnabled(!running);
+    destination_chooser_->setChooserEnabled(!running);
 
     if (running) {
-        progress_bar_.set_fraction(0.0);
-        progress_bar_.set_text("Running...");
+        last_progress_percent_ = -1;
+        progress_bar_->setValue(0);
+        progress_bar_->setFormat("Running...");
     }
 }
 
 void MainWindow::on_sync_clicked() {
     if (runner_.is_running()) {
+        cancel_requested_ = true;
         runner_.cancel();
-        progress_bar_.set_text("Stopping...");
+        progress_bar_->setFormat("Stopping...");
         return;
     }
 
@@ -207,63 +255,36 @@ void MainWindow::on_sync_clicked() {
         return;
     }
 
-    if (output_buffer_) {
-        output_buffer_->set_text("");
-    }
-
+    output_view_->clear();
+    cancel_requested_ = false;
     set_running_state(true);
+    append_output(
+        "$ rsync -avP --info=progress2 --delete \"" + origin + "\" \"" +
+        destination + "\"\n\n");
 
-    append_output("$ rsync -aP --delete \"" + origin + "\" \"" + destination + "\"\n\n");
-
-    std::string error;
-    if (!runner_.start(origin, destination, error)) {
+    std::string start_error;
+    if (!runner_.start(origin, destination, start_error)) {
         set_running_state(false);
-        progress_bar_.set_text("Error");
-        append_output("Error: " + error + "\n");
-        show_error(error, "Synchronization error");
+        progress_bar_->setFormat("Error");
+        append_output("Error: " + start_error + "\n");
+        show_error(start_error, "Synchronization error");
     }
-}
-
-void MainWindow::on_progress(int percent) {
-    progress_bar_.set_fraction(static_cast<double>(percent) / 100.0);
-    progress_bar_.set_text(std::to_string(percent) + "%");
-}
-
-void MainWindow::on_runner_finished(int exit_code, bool signaled) {
-    if (signaled) {
-        progress_bar_.set_text("Cancelled");
-    } else if (exit_code == 0) {
-        progress_bar_.set_fraction(1.0);
-        progress_bar_.set_text("Done");
-    } else {
-        progress_bar_.set_text("Failed");
-        show_error(
-            "Synchronization failed with exit code " + std::to_string(exit_code) + ".",
-            "Synchronization failed");
-    }
-
-    set_running_state(false);
 }
 
 bool MainWindow::confirm_synchronize() {
-    Gtk::MessageDialog dialog(
-        *this,
-        "Notice",
-        false,
-        Gtk::MESSAGE_WARNING,
-        Gtk::BUTTONS_OK_CANCEL,
-        true);
-
-    dialog.set_secondary_text(
-        "Any files in the destination folder that do not exist in the origin will be deleted. "
-        "This is to keep the destination folder up to date. Continue?");
-
-    return dialog.run() == Gtk::RESPONSE_OK;
+    QMessageBox dialog(this);
+    dialog.setWindowTitle("Notice");
+    dialog.setIcon(QMessageBox::Warning);
+    dialog.setText("Any files in the destination folder that do not exist in the origin will be deleted.");
+    dialog.setInformativeText("This is to keep the destination folder up to date. Continue?");
+    dialog.setStandardButtons(QMessageBox::Ok | QMessageBox::Cancel);
+    dialog.setDefaultButton(QMessageBox::Cancel);
+    return dialog.exec() == QMessageBox::Ok;
 }
 
 bool MainWindow::validate_inputs(std::string& origin, std::string& destination) {
-    origin = origin_chooser_.get_filename();
-    destination = destination_chooser_.get_filename();
+    origin = origin_chooser_->path().toStdString();
+    destination = destination_chooser_->path().toStdString();
 
     if (origin.empty() || destination.empty()) {
         show_error("Please choose both origin and destination folders.");
@@ -280,10 +301,10 @@ bool MainWindow::validate_inputs(std::string& origin, std::string& destination) 
         return false;
     }
 
-    if (origin.back() != '/') {
+    if (!origin.empty() && origin.back() != '/' && origin.back() != '\\') {
         origin.push_back('/');
     }
-    if (destination.back() != '/') {
+    if (!destination.empty() && destination.back() != '/' && destination.back() != '\\') {
         destination.push_back('/');
     }
 
@@ -291,13 +312,8 @@ bool MainWindow::validate_inputs(std::string& origin, std::string& destination) 
 }
 
 void MainWindow::show_error(const std::string& message, const std::string& title) {
-    Gtk::MessageDialog dialog(
-        *this,
-        title,
-        false,
-        Gtk::MESSAGE_ERROR,
-        Gtk::BUTTONS_CLOSE,
-        true);
-    dialog.set_secondary_text(message);
-    dialog.run();
+    QMessageBox::critical(
+        this,
+        QString::fromStdString(title),
+        QString::fromStdString(message));
 }

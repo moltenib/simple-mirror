@@ -1,7 +1,8 @@
 #include <string>
 #include <vector>
 
-#include <gtkmm.h>
+#include <QApplication>
+#include <QIcon>
 
 #include "MainWindow.hpp"
 
@@ -13,30 +14,26 @@ const std::vector<std::string> kIconCandidates = {
 };
 
 std::string pick_icon_name() {
-    auto icon_theme = Gtk::IconTheme::get_default();
-    if (!icon_theme) {
-        return "";
-    }
-
     for (const auto& candidate : kIconCandidates) {
-        if (icon_theme->has_icon(candidate)) {
+        if (!QIcon::fromTheme(QString::fromStdString(candidate)).isNull()) {
             return candidate;
         }
     }
-
     return "";
 }
 
 }  // namespace
 
 int main(int argc, char* argv[]) {
-    auto app = Gtk::Application::create(argc, argv, "org.quickbackup.app");
+    QApplication app(argc, argv);
+    app.setStyle("Fusion");
 
     const std::string icon_name = pick_icon_name();
     if (!icon_name.empty()) {
-        Gtk::Window::set_default_icon_name(icon_name);
+        app.setWindowIcon(QIcon::fromTheme(QString::fromStdString(icon_name)));
     }
 
     MainWindow window(icon_name);
-    return app->run(window);
+    window.show();
+    return app.exec();
 }

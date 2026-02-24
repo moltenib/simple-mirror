@@ -14,9 +14,11 @@ Runs the original PyGObject app:
 
 The C++ app is split by concern:
 
-- `src/main.cpp`: application startup and icon selection.
-- `src/MainWindow.hpp` + `src/MainWindow.cpp`: Qt UI, validation, dialogs, and progress display.
-- `src/RsyncRunner.hpp` + `src/RsyncRunner.cpp`: rsync process lifecycle and output/progress parsing.
+- `src/main.cpp`: application startup.
+- `src/views/MainWindow.hpp` + `src/views/MainWindow.cpp`: Qt UI, validation, dialogs, and progress display.
+- `src/views/DirectoryChooserWidget.hpp` + `src/views/DirectoryChooserWidget.cpp`: directory selection UI row.
+- `src/controllers/RsyncRunner.hpp` + `src/controllers/RsyncRunner.cpp`: rsync process lifecycle and output parsing.
+- `src/utils/AppSetup.hpp` + `src/utils/AppSetup.cpp`: icon and translation initialization.
 
 ### Build
 
@@ -39,13 +41,13 @@ Useful targets:
 
 - `make run`: build and launch
 - `make clean`: remove objects and binary
-- `make translations`: compile `.ts` files in `i18n/ts` to `.qm` in `i18n/qm`
+- `make translations`: compile `.ts` files in `resources/locales/ts` to `.qm` in `resources/locales/qm`
 - `make bundle-rsync`: download and bundle MSYS2 `rsync` into `runtime/msys2`
 - `make clean-bundle`: remove bundled MSYS2 rsync files and cache
 
 ## Translations (Qt)
 
-English is the default UI language. At startup, the app loads a translation based on the system locale if a matching `.qm` file exists in `i18n/qm`.
+English is the default UI language. At startup, the app loads a translation based on the system locale if a matching `.qm` file exists in `resources/locales/qm`.
 
 Included translation files:
 
@@ -63,7 +65,7 @@ Included translation files:
 For `simple-mirror`, rsync is discovered in this order
 (checked relative to both the executable directory and current working directory):
 
-1. `QUICK_BACKUP_RSYNC` environment variable
+1. `SIMPLE_MIRROR_RSYNC` environment variable
 2. Bundled paths in the working directory:
    - `runtime/msys2/usr/bin/rsync.exe`
    - `runtime/bin/rsync.exe`

@@ -1,4 +1,4 @@
-#include "MainWindow.hpp"
+#include "views/MainWindow.hpp"
 
 #include <filesystem>
 
@@ -14,6 +14,8 @@
 #include <QTextDocument>
 #include <QVBoxLayout>
 #include <QWidget>
+
+#include "utils/AppSetup.hpp"
 
 namespace {
 
@@ -124,9 +126,7 @@ MainWindow::MainWindow(const std::string& icon_name)
     setMinimumSize(800, 600);
     resize(800, 600);
 
-    if (!icon_name.empty()) {
-        setWindowIcon(QIcon::fromTheme(QString::fromStdString(icon_name)));
-    }
+    app_setup::apply_window_icon(*this, icon_name);
 
     if (QScreen* screen = this->screen()) {
         const QRect available = screen->availableGeometry();
@@ -142,9 +142,11 @@ MainWindow::MainWindow(const std::string& icon_name)
 
     auto* top_row = new QHBoxLayout();
     top_row->setSpacing(6);
+    top_row->setContentsMargins(0, 0, 0, 0);
 
     auto* directory_column = new QVBoxLayout();
     directory_column->setSpacing(6);
+    directory_column->setContentsMargins(0, 0, 0, 0);
 
     origin_chooser_ = new DirectoryChooserWidget(
         tr("Origin:"),
@@ -180,6 +182,7 @@ MainWindow::MainWindow(const std::string& icon_name)
 
     auto* sync_column = new QVBoxLayout();
     sync_column->setSpacing(6);
+    sync_column->setContentsMargins(0, 0, 0, 0);
     sync_column->addWidget(sync_button_);
 
     top_row->addLayout(directory_column, 1);

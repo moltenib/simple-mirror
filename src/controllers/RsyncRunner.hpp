@@ -4,7 +4,7 @@
 #include <regex>
 #include <string>
 
-class QProcess;
+#include <QProcess>
 
 class RsyncRunner {
 public:
@@ -14,6 +14,10 @@ public:
 
     RsyncRunner();
     ~RsyncRunner();
+    RsyncRunner(const RsyncRunner&) = delete;
+    RsyncRunner& operator=(const RsyncRunner&) = delete;
+    RsyncRunner(RsyncRunner&&) = delete;
+    RsyncRunner& operator=(RsyncRunner&&) = delete;
 
     void set_output_callback(OutputCallback callback);
     void set_progress_callback(ProgressCallback callback);
@@ -36,7 +40,7 @@ private:
         std::string& display_line) const;
     bool is_filelist_progress_noise(const std::string& line) const;
 
-    QProcess* process_;
+    QProcess process_;
     bool running_;
     std::string rsync_executable_;
     std::string pending_output_;
@@ -46,6 +50,7 @@ private:
     FinishedCallback finished_callback_;
 
     const std::regex percent_regex_{R"((\d{1,3})%)"};
+    const std::regex speed_regex_{R"(([0-9][0-9.,]*\s*[kMGTPE]?i?B/s))"};
     const std::regex overall_with_checks_regex_{
         R"(\(xfr#\d+,\s*(ir-chk|to-chk)=\d+/\d+\))"};
     const std::regex filelist_progress_noise_regex_{

@@ -1,15 +1,16 @@
 CXX := g++
-CXXFLAGS := -std=c++17 -Wall -Wextra -pedantic -fPIC
+CXXFLAGS := -std=c++17 -Wall -Wextra -pedantic -fPIC -Isrc
 PKG_CONFIG := pkg-config
 QT_CFLAGS := $(shell $(PKG_CONFIG) --cflags Qt6Widgets)
 QT_LIBS := $(shell $(PKG_CONFIG) --libs Qt6Widgets)
 .DEFAULT_GOAL := all
+ROOT_DIR := $(abspath $(dir $(lastword $(MAKEFILE_LIST))))
 
-SRC := src/main.cpp src/MainWindow.cpp src/RsyncRunner.cpp src/DirectoryChooserWidget.cpp
+SRC := src/main.cpp src/views/MainWindow.cpp src/controllers/RsyncRunner.cpp src/views/DirectoryChooserWidget.cpp src/utils/AppSetup.cpp
 OBJ := $(SRC:.cpp=.o)
-BIN := simple-mirror
-TS_DIR := i18n/ts
-QM_DIR := i18n/qm
+BIN := $(ROOT_DIR)/simple-mirror
+TS_DIR := resources/locales/ts
+QM_DIR := resources/locales/qm
 TS_FILES := $(wildcard $(TS_DIR)/simple-mirror_*.ts)
 QM_FILES := $(patsubst $(TS_DIR)/%.ts,$(QM_DIR)/%.qm,$(TS_FILES))
 LRELEASE := lrelease
@@ -50,10 +51,11 @@ $(MSYS2_RSYNC_EXE): $(MSYS2_BUNDLE_SCRIPT)
 	$(MSYS2_BUNDLE_SCRIPT)
 
 run: $(BIN)
-	./$(BIN)
+	$(BIN)
 
 clean:
-	rm -f $(OBJ) $(BIN) $(QM_FILES)
+	find src -name '*.o' -delete
+	rm -f $(BIN) $(QM_FILES)
 
 clean-bundle:
 	rm -rf runtime/msys2 .cache/msys2

@@ -5,8 +5,8 @@
 #include <QCoreApplication>
 #include <QMainWindow>
 
-#include "DirectoryChooserWidget.hpp"
-#include "RsyncRunner.hpp"
+#include "controllers/RsyncRunner.hpp"
+#include "views/DirectoryChooserWidget.hpp"
 
 class QPushButton;
 class QTextEdit;

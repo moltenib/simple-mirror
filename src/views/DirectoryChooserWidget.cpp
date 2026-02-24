@@ -1,4 +1,4 @@
-#include "DirectoryChooserWidget.hpp"
+#include "views/DirectoryChooserWidget.hpp"
 
 #include <QDir>
 #include <QFileDialog>

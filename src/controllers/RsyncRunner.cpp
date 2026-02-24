@@ -1,4 +1,4 @@
-#include "RsyncRunner.hpp"
+#include "controllers/RsyncRunner.hpp"
 
 #include <algorithm>
 #include <cctype>
@@ -12,15 +12,15 @@
 #include <QStandardPaths>
 #include <QTimer>
 
-RsyncRunner::RsyncRunner() : process_(new QProcess()), running_(false) {
-    process_->setProcessChannelMode(QProcess::MergedChannels);
+RsyncRunner::RsyncRunner() : process_(), running_(false) {
+    process_.setProcessChannelMode(QProcess::MergedChannels);
 
-    QObject::connect(process_, &QProcess::readyReadStandardOutput, [this]() {
+    QObject::connect(&process_, &QProcess::readyReadStandardOutput, [this]() {
         handle_ready_read();
     });
 
     QObject::connect(
-        process_,
+        &process_,
         qOverload<int, QProcess::ExitStatus>(&QProcess::finished),
         [this](int exit_code, QProcess::ExitStatus exit_status) {
             handle_finished(exit_code, static_cast<int>(exit_status));
@@ -28,18 +28,14 @@ RsyncRunner::RsyncRunner() : process_(new QProcess()), running_(false) {
 }
 
 RsyncRunner::~RsyncRunner() {
-    if (process_ != nullptr) {
-        output_callback_ = nullptr;
-        progress_callback_ = nullptr;
-        finished_callback_ = nullptr;
-        QObject::disconnect(process_, nullptr, nullptr, nullptr);
+    output_callback_ = nullptr;
+    progress_callback_ = nullptr;
+    finished_callback_ = nullptr;
+    QObject::disconnect(&process_, nullptr, nullptr, nullptr);
 
-        if (process_->state() != QProcess::NotRunning) {
-            process_->kill();
-            process_->waitForFinished(1000);
-        }
-        delete process_;
-        process_ = nullptr;
+    if (process_.state() != QProcess::NotRunning) {
+        process_.kill();
+        process_.waitForFinished(1000);
     }
 }
 
@@ -83,9 +79,9 @@ bool RsyncRunner::start(const std::string& origin, const std::string& destinatio
          << QString::fromStdString(normalize_rsync_path(origin))
          << QString::fromStdString(normalize_rsync_path(destination));
 
-    process_->start(QString::fromStdString(rsync_executable_), args);
-    if (!process_->waitForStarted()) {
-        error = process_->errorString().toStdString();
+    process_.start(QString::fromStdString(rsync_executable_), args);
+    if (!process_.waitForStarted()) {
+        error = process_.errorString().toStdString();
         return false;
     }
 
@@ -97,10 +93,10 @@ void RsyncRunner::stop() {
     if (!running_) {
         return;
     }
-    process_->terminate();
-    QTimer::singleShot(1200, process_, [this]() {
-        if (running_ && process_->state() != QProcess::NotRunning) {
-            process_->kill();
+    process_.terminate();
+    QTimer::singleShot(1200, &process_, [process = &process_]() {
+        if (process->state() != QProcess::NotRunning) {
+            process->kill();
         }
     });
 }
@@ -110,7 +106,7 @@ bool RsyncRunner::is_running() const {
 }
 
 bool RsyncRunner::resolve_rsync_executable(std::string& error) {
-    const QString env_value = qEnvironmentVariable("QUICK_BACKUP_RSYNC").trimmed();
+    const QString env_value = qEnvironmentVariable("SIMPLE_MIRROR_RSYNC").trimmed();
     if (!env_value.isEmpty()) {
         QFileInfo env_file(env_value);
         if (env_file.exists() && env_file.isFile()) {
@@ -119,7 +115,7 @@ bool RsyncRunner::resolve_rsync_executable(std::string& error) {
         }
         error = QCoreApplication::translate(
                     "RsyncRunner",
-                    "QUICK_BACKUP_RSYNC is set but does not point to a valid file: %1")
+                    "SIMPLE_MIRROR_RSYNC is set but does not point to a valid file: %1")
                     .arg(env_value)
                     .toStdString();
         return false;
@@ -172,7 +168,7 @@ bool RsyncRunner::resolve_rsync_executable(std::string& error) {
 
     error = QCoreApplication::translate(
                 "RsyncRunner",
-                "Could not find rsync. Set QUICK_BACKUP_RSYNC, add rsync to PATH, or bundle "
+                "Could not find rsync. Set SIMPLE_MIRROR_RSYNC, add rsync to PATH, or bundle "
                 "\"runtime/bin/rsync\" on Linux, or \"runtime/msys2/usr/bin/rsync.exe\" on Windows.")
                 .toStdString();
     return false;
@@ -210,7 +206,7 @@ std::string ltrim_copy(const std::string& value) {
 }  // namespace
 
 void RsyncRunner::handle_ready_read() {
-    const QByteArray data = process_->readAllStandardOutput();
+    const QByteArray data = process_.readAllStandardOutput();
     if (data.isEmpty()) {
         return;
     }
@@ -282,7 +278,7 @@ bool RsyncRunner::parse_overall_progress_line(
     const std::string& line,
     int& percent,
     std::string& display_line) const {
-    // Parse `progress2` lines with ir-chk/to-chk as progress-only UI updates.
+    // Parse `progress2` lines with ir-chk/to-chk as progress-only UI updates
     if (!std::regex_search(line, overall_with_checks_regex_)) {
         return false;
     }
@@ -293,7 +289,29 @@ bool RsyncRunner::parse_overall_progress_line(
     }
 
     percent = std::stoi(match[1].str());
-    display_line = ltrim_copy(line);
+
+    std::string speed;
+    std::smatch speed_match;
+    if (std::regex_search(line, speed_match, speed_regex_) && speed_match.size() >= 2) {
+        speed = speed_match[1].str();
+        speed = ltrim_copy(speed);
+
+        const auto alpha_it = std::find_if(speed.begin(), speed.end(), [](unsigned char ch) {
+            return std::isalpha(ch) != 0;
+        });
+        if (alpha_it != speed.end() && alpha_it != speed.begin()) {
+            const std::size_t alpha_index =
+                static_cast<std::size_t>(std::distance(speed.begin(), alpha_it));
+            if (speed[alpha_index - 1] != ' ') {
+                speed.insert(alpha_index, " ");
+            }
+        }
+    }
+
+    display_line = std::to_string(percent) + "%";
+    if (!speed.empty()) {
+        display_line += " (" + speed + ")";
+    }
     return true;
 }
 

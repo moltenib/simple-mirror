@@ -15,13 +15,12 @@ LOCALE_TS_FILES := $(wildcard resources/locales/*/LC_MESSAGES/simple-mirror.ts)
 QM_FILES := $(patsubst %/simple-mirror.ts,%/simple-mirror.qm,$(LOCALE_TS_FILES))
 LRELEASE := lrelease
 MSYS2_BUNDLE_SCRIPT := scripts/bundle-msys2-rsync.sh
+WIN_DLL_COLLECT_SCRIPT := scripts/collect-win-dlls.sh
 MSYS2_RSYNC_EXE := runtime/msys2/usr/bin/rsync.exe
 RUNTIME_MANIFEST := $(ROOT_DIR)/.runtime-libs-manifest
 WIN_DEPLOY_DIR := $(ROOT_DIR)/dist
 WINDEPLOYQT ?= windeployqt6
 WIN_MINGW_BIN := $(dir $(shell command -v $(CXX) 2>/dev/null))
-WIN_RUNTIME_DLLS := libgcc_s_seh-1.dll libstdc++-6.dll libwinpthread-1.dll
-WIN_EXTRA_DLL_PATTERNS := libbz2-*.dll libdouble-conversion*.dll libicudt*.dll libicuin*.dll libicuuc*.dll
 
 BUNDLE_RSYNC ?= 0
 ifeq ($(OS),Windows_NT)
@@ -72,29 +71,6 @@ ifeq ($(OS),Windows_NT)
 	if [ "$(BIN)" != "$(ROOT_DIR)/$$exe_name" ] && [ -f "$(ROOT_DIR)/$$exe_name" ]; then \
 		rm -f "$(ROOT_DIR)/$$exe_name"; \
 	fi; \
-	for dll in $(WIN_RUNTIME_DLLS); do \
-		dll_path="$$( $(CXX) -print-file-name=$$dll 2>/dev/null || true )"; \
-		if [ "$$dll_path" = "$$dll" ] || [ ! -f "$$dll_path" ]; then \
-			dll_path="$(WIN_MINGW_BIN)$$dll"; \
-		fi; \
-		if [ -f "$$dll_path" ]; then \
-			cp -f "$$dll_path" "$(WIN_DEPLOY_DIR)/"; \
-		else \
-			echo "Warning: $$dll not found"; \
-		fi; \
-	done; \
-	for pat in $(WIN_EXTRA_DLL_PATTERNS); do \
-		found=0; \
-		for src in "$(WIN_MINGW_BIN)"/$$pat "$$qt_bin_dir"/$$pat; do \
-			if [ -f "$$src" ]; then \
-				cp -f "$$src" "$(WIN_DEPLOY_DIR)/"; \
-				found=1; \
-			fi; \
-		done; \
-		if [ $$found -eq 0 ]; then \
-			echo "Warning: no match for $$pat"; \
-		fi; \
-	done; \
 	mkdir -p "$(WIN_DEPLOY_DIR)/resources"; \
 	cp -a resources/locales "$(WIN_DEPLOY_DIR)/resources/"; \
 	if [ -f "$(MSYS2_RSYNC_EXE)" ]; then \
@@ -108,6 +84,7 @@ ifeq ($(OS),Windows_NT)
 	else \
 		echo "Warning: windeployqt not found, Qt runtime was not auto-copied"; \
 	fi; \
+	bash "$(WIN_DLL_COLLECT_SCRIPT)" "$(WIN_DEPLOY_DIR)" "$(WIN_MINGW_BIN)" "$$qt_bin_dir"; \
 	echo "Windows deployment is ready in $(WIN_DEPLOY_DIR)"
 else
 	@echo "deploy-windows is only available when OS=Windows_NT"

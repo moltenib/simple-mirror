@@ -26,6 +26,47 @@ Build:
 make
 ```
 
+## Windows Build Sequence
+
+Use the `MSYS2 MinGW64` shell in the repo root
+
+Install dependencies once:
+
+```bash
+pacman -S --needed \
+  mingw-w64-x86_64-toolchain \
+  mingw-w64-x86_64-pkgconf \
+  mingw-w64-x86_64-qt6-base \
+  mingw-w64-x86_64-qt6-tools \
+  mingw-w64-x86_64-qt6-translations \
+  make \
+  nsis
+```
+
+Build:
+
+```bash
+make clean
+make
+```
+
+Create a runnable `dist` bundle with bundled `rsync`:
+
+```bash
+make BUNDLE_RSYNC=1 deploy-windows
+```
+
+Create an installer:
+
+```bash
+make APP_VERSION=1.0.0 installer-windows
+```
+
+Outputs:
+
+- `dist/simple-mirror.exe`
+- `simple-mirror-setup-1.0.0.exe`
+
 Run:
 
 - Linux: `./simple-mirror`

@@ -9,7 +9,7 @@ class QPushButton;
 
 class DirectoryChooserWidget : public QWidget {
 public:
-    Q_DECLARE_TR_FUNCTIONS(DirectoryChooserWidget);
+    Q_DECLARE_TR_FUNCTIONS(DirectoryChooserWidget)
 public:
 
     DirectoryChooserWidget(
@@ -22,7 +22,6 @@ public:
         QWidget* parent = nullptr);
 
     QString path() const;
-    void setPath(const QString& path);
 
     void setChooserEnabled(bool enabled);
 

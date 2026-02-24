@@ -329,12 +329,24 @@ bool MainWindow::validate_inputs(std::string& origin, std::string& destination) 
         return false;
     }
 
-    if (!std::filesystem::is_directory(origin)) {
+    std::error_code origin_error;
+    const bool origin_is_directory = std::filesystem::is_directory(origin, origin_error);
+    if (origin_error) {
+        show_error(tr("Cannot access origin folder: %1").arg(QString::fromStdString(origin)));
+        return false;
+    }
+    if (!origin_is_directory) {
         show_error(tr("Origin folder does not exist: %1").arg(QString::fromStdString(origin)));
         return false;
     }
 
-    if (!std::filesystem::is_directory(destination)) {
+    std::error_code destination_error;
+    const bool destination_is_directory = std::filesystem::is_directory(destination, destination_error);
+    if (destination_error) {
+        show_error(tr("Cannot access destination folder: %1").arg(QString::fromStdString(destination)));
+        return false;
+    }
+    if (!destination_is_directory) {
         show_error(tr("Destination folder does not exist: %1").arg(QString::fromStdString(destination)));
         return false;
     }

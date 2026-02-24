@@ -15,7 +15,7 @@ class QString;
 
 class MainWindow : public QMainWindow {
 public:
-    Q_DECLARE_TR_FUNCTIONS(MainWindow);
+    Q_DECLARE_TR_FUNCTIONS(MainWindow)
 public:
 
     explicit MainWindow(const std::string& icon_name);

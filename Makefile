@@ -9,10 +9,8 @@ ROOT_DIR := $(abspath $(dir $(lastword $(MAKEFILE_LIST))))
 SRC := src/main.cpp src/views/MainWindow.cpp src/controllers/RsyncRunner.cpp src/views/DirectoryChooserWidget.cpp src/utils/AppSetup.cpp
 OBJ := $(SRC:.cpp=.o)
 BIN := $(ROOT_DIR)/simple-mirror
-TS_DIR := resources/locales/ts
-QM_DIR := resources/locales/qm
-TS_FILES := $(wildcard $(TS_DIR)/simple-mirror_*.ts)
-QM_FILES := $(patsubst $(TS_DIR)/%.ts,$(QM_DIR)/%.qm,$(TS_FILES))
+LOCALE_TS_FILES := $(wildcard resources/locales/*/LC_MESSAGES/simple-mirror.ts)
+QM_FILES := $(patsubst %/simple-mirror.ts,%/simple-mirror.qm,$(LOCALE_TS_FILES))
 LRELEASE := lrelease
 MSYS2_BUNDLE_SCRIPT := scripts/bundle-msys2-rsync.sh
 MSYS2_RSYNC_EXE := runtime/msys2/usr/bin/rsync.exe
@@ -39,10 +37,7 @@ src/%.o: src/%.cpp
 
 translations: $(QM_FILES)
 
-$(QM_DIR):
-	mkdir -p $(QM_DIR)
-
-$(QM_DIR)/%.qm: $(TS_DIR)/%.ts | $(QM_DIR)
+%/simple-mirror.qm: %/simple-mirror.ts
 	$(LRELEASE) $< -qm $@
 
 bundle-rsync: $(MSYS2_RSYNC_EXE)

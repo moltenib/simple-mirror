@@ -2,14 +2,6 @@
 
 GUI wrapper around `rsync -av --info=progress2 --delete` to mirror an origin folder into a destination.
 
-## Python version
-
-Runs the original PyGObject app:
-
-```bash
-./quick-backup.py
-```
-
 ## Qt version (C++)
 
 The C++ app is split by concern:
@@ -41,13 +33,13 @@ Useful targets:
 
 - `make run`: build and launch
 - `make clean`: remove objects and binary
-- `make translations`: compile `.ts` files in `resources/locales/ts` to `.qm` in `resources/locales/qm`
+- `make translations`: compile each `resources/locales/<lang>/LC_MESSAGES/simple-mirror.ts` to `.qm`
 - `make bundle-rsync`: download and bundle MSYS2 `rsync` into `runtime/msys2`
 - `make clean-bundle`: remove bundled MSYS2 rsync files and cache
 
 ## Translations (Qt)
 
-English is the default UI language. At startup, the app loads a translation based on the system locale if a matching `.qm` file exists in `resources/locales/qm`.
+English is the default UI language. At startup, the app loads a translation based on the system locale if a matching `.qm` file exists in `resources/locales/<lang>/LC_MESSAGES`.
 
 Included translation files:
 

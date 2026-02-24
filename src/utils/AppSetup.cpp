@@ -55,19 +55,21 @@ void install_app_translator(QApplication& app) {
     const QString locale_name = locale.name();
     const QString app_dir = QCoreApplication::applicationDirPath();
     const QString cwd = QDir::currentPath();
-    const QStringList search_dirs = {
-        QDir(app_dir).filePath("resources/locales/qm"),
-        QDir(cwd).filePath("resources/locales/qm"),
+    const QStringList search_roots = {
+        app_dir,
+        cwd,
     };
-    const QStringList suffixes = {
+    const QStringList locale_keys = {
         locale_name,
         language,
     };
 
     auto* translator = new QTranslator(&app);
-    for (const QString& search_dir : search_dirs) {
-        for (const QString& suffix : suffixes) {
-            if (translator->load("simple-mirror_" + suffix, search_dir)) {
+    for (const QString& search_root : search_roots) {
+        for (const QString& locale_key : locale_keys) {
+            const QString qm_path = QDir(search_root).filePath(
+                "resources/locales/" + locale_key + "/LC_MESSAGES/simple-mirror.qm");
+            if (translator->load(qm_path)) {
                 app.installTranslator(translator);
                 return;
             }

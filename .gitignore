@@ -1,8 +1,6 @@
-/quick-backup
-/quick-backup-qt
 /simple-mirror
 /simple-mirror.exe
 *.o
 .cache/
 runtime/
-resources/locales/qm/*.qm
+resources/locales/*/LC_MESSAGES/simple-mirror.qm

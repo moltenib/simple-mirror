@@ -294,7 +294,7 @@ std::string RsyncRunner::normalize_rsync_path(const std::string& path) const {
     static const std::regex drive_pattern(R"(^([A-Za-z]):/(.*)$)");
     std::smatch match;
     if (std::regex_match(normalized, match, drive_pattern) && match.size() == 3) {
-        std::string converted = "/";
+        std::string converted = "/cygdrive/";
         converted += static_cast<char>(std::tolower(match[1].str()[0]));
         converted += "/";
         converted += match[2].str();

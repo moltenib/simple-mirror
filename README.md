@@ -128,4 +128,4 @@ For runnable packaging outside MSYS2 on Windows:
 make deploy-windows
 ```
 
-On Windows, selected folder paths are converted to MSYS2 format before rsync call, example: `C:\Data\Backup\` -> `/c/Data/Backup/`
+On Windows, selected folder paths are converted to MSYS2 POSIX format before rsync call, example: `C:\Data\Backup\` -> `/cygdrive/c/Data/Backup/`

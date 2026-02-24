@@ -351,11 +351,18 @@ bool MainWindow::validate_inputs(std::string& origin, std::string& destination) 
         return false;
     }
 
+    constexpr char path_separator =
+#ifdef _WIN32
+        '\\';
+#else
+        '/';
+#endif
+
     if (!origin.empty() && origin.back() != '/' && origin.back() != '\\') {
-        origin.push_back('/');
+        origin.push_back(path_separator);
     }
     if (!destination.empty() && destination.back() != '/' && destination.back() != '\\') {
-        destination.push_back('/');
+        destination.push_back(path_separator);
     }
 
     return true;

@@ -36,6 +36,8 @@ Useful targets:
 - `make translations`: compile each `resources/locales/<lang>/LC_MESSAGES/simple-mirror.ts` to `.qm`
 - `make bundle-rsync`: download and bundle MSYS2 `rsync` into `runtime/msys2`
 - `make clean-bundle`: remove bundled MSYS2 rsync files and cache
+- `make bundle-runtime`: copy shared library dependencies next to `simple-mirror`, copy Qt platform plugins to `plugins/platforms`, and write `qt.conf`
+- `make clean-runtime`: remove files copied by `bundle-runtime`
 
 ## Translations (Qt)
 

@@ -17,6 +17,7 @@
 #include <QWidget>
 
 #include "utils/AppSetup.hpp"
+#include "utils/Settings.hpp"
 
 namespace {
 
@@ -174,6 +175,14 @@ MainWindow::MainWindow(const std::string& icon_name)
         "browse-destination",
         central);
 
+    const settings::Settings last_settings = settings::load();
+    if (!last_settings.origin.empty()) {
+        origin_chooser_->setPath(QString::fromStdString(last_settings.origin));
+    }
+    if (!last_settings.destination.empty()) {
+        destination_chooser_->setPath(QString::fromStdString(last_settings.destination));
+    }
+
     auto* origin_label = origin_chooser_->findChild<QLabel*>("origin-label");
     auto* destination_label = destination_chooser_->findChild<QLabel*>("destination-label");
     if (origin_label && destination_label) {
@@ -256,6 +265,9 @@ MainWindow::MainWindow(const std::string& icon_name)
             progress_bar_->setFormat(tr("Stopped"));
             set_status_text(tr("Stopped"));
         } else if (exit_code == 0) {
+            settings::save(settings::Settings{
+                origin_chooser_->path().toStdString(),
+                destination_chooser_->path().toStdString()});
             progress_bar_->setValue(100);
             progress_bar_->setFormat(tr("Done"));
             set_status_text(tr("Mirroring complete."));

@@ -72,8 +72,7 @@ bool RsyncRunner::start(const std::string& origin, const std::string& destinatio
     }
 
     QStringList args;
-    args << "-a"
-         << "-v"
+    args << "-avh"
          << "--info=progress2"
          << "--delete"
          << QString::fromStdString(normalize_rsync_path(origin))

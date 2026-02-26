@@ -21,6 +21,7 @@ public:
         QWidget* parent = nullptr);
 
     QString path() const;
+    void setPath(const QString& path);
 
     void setChooserEnabled(bool enabled);
 

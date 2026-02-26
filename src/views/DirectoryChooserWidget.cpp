@@ -45,6 +45,10 @@ QString DirectoryChooserWidget::path() const {
     return path_edit_->text();
 }
 
+void DirectoryChooserWidget::setPath(const QString& path) {
+    path_edit_->setText(path);
+}
+
 void DirectoryChooserWidget::setChooserEnabled(bool enabled) {
     path_edit_->setEnabled(enabled);
     browse_button_->setEnabled(enabled);

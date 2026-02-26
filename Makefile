@@ -5,7 +5,6 @@ LRELEASE := lrelease
 WINDEPLOYQT ?= windeployqt6
 NSIS ?= makensis
 APP_VERSION ?= 1.0.0
-BUNDLE_RSYNC ?= 0
 
 CXXFLAGS := -std=c++17 -Wall -Wextra -pedantic -fPIC -Isrc
 LDFLAGS :=
@@ -49,8 +48,8 @@ LDFLAGS += -Wl,-rpath,'$$ORIGIN'
 endif
 
 BIN_DIR := $(dir $(BIN))
-ALL_TARGETS := $(BIN) $(if $(filter 1,$(BUNDLE_RSYNC)),$(MSYS2_RSYNC_EXE))
-WINDOWS_DEPLOY_DEPS := $(BIN) translations $(if $(filter 1,$(BUNDLE_RSYNC)),$(MSYS2_RSYNC_EXE))
+ALL_TARGETS := $(BIN)
+WINDOWS_DEPLOY_DEPS := $(BIN) translations
 
 .PHONY: all run clean clean-all windows-all bundle-rsync clean-bundle windows-deploy windows-clean-deploy translations windows-installer
 
@@ -81,21 +80,7 @@ $(MSYS2_RSYNC_EXE): $(MSYS2_BUNDLE_SCRIPT)
 windows-deploy: $(WINDOWS_DEPLOY_DEPS)
 ifeq ($(IS_WINDOWS),1)
 	@set -eu; \
-	needs_deploy=0; \
-	if [ "$${FORCE_WINDOWS_DEPLOY:-0}" = "1" ] || [ ! -f "$(WIN_DEPLOY_LOCK)" ]; then \
-		needs_deploy=1; \
-	fi; \
-	if [ "$$needs_deploy" = "0" ] && [ "$(BIN)" -nt "$(WIN_DEPLOY_LOCK)" ]; then \
-		needs_deploy=1; \
-	fi; \
-	resources_updated="$$(find resources -type f -newer "$(WIN_DEPLOY_LOCK)" -print -quit 2>/dev/null || true)"; \
-	if [ "$$needs_deploy" = "0" ] && [ -n "$$resources_updated" ]; then \
-		needs_deploy=1; \
-	fi; \
-	if [ "$$needs_deploy" = "0" ] && [ -f "$(MSYS2_RSYNC_EXE)" ] && [ "$(MSYS2_RSYNC_EXE)" -nt "$(WIN_DEPLOY_LOCK)" ]; then \
-		needs_deploy=1; \
-	fi; \
-	if [ "$$needs_deploy" = "0" ]; then \
+	if [ -f "$(WIN_DEPLOY_LOCK)" ]; then \
 		echo "Skipping windows-deploy (lock found: $(WIN_DEPLOY_LOCK))"; \
 		exit 0; \
 	fi; \
@@ -119,7 +104,7 @@ ifeq ($(IS_WINDOWS),1)
 	else \
 		echo "Warning: windeployqt not found, Qt runtime was not auto-copied"; \
 	fi; \
-	if [ "$${FORCE_WIN_DLL_COLLECT:-0}" = "1" ] || [ ! -f "$(WIN_DLLS_LOCK)" ]; then \
+	if [ ! -f "$(WIN_DLLS_LOCK)" ]; then \
 		echo "Collecting runtime DLL dependencies with ldd (this may take a while)"; \
 		bash "$(WIN_DLL_COLLECT_SCRIPT)" "$(WIN_DEPLOY_DIR)" "$(WIN_MINGW_BIN)" "$$qt_bin_dir"; \
 		touch "$(WIN_DLLS_LOCK)"; \
@@ -149,8 +134,10 @@ endif
 
 windows-all:
 ifeq ($(IS_WINDOWS),1)
+	@if [ ! -f "$(WIN_DEPLOY_LOCK)" ]; then \
+		$(MAKE) bundle-rsync; \
+	fi
 	$(MAKE) all
-	$(MAKE) translations
 	$(MAKE) windows-installer
 else
 	@echo "windows-all is $(WINDOWS_ENV_MSG)"
@@ -170,7 +157,7 @@ clean-all: clean clean-bundle windows-clean-deploy
 	rm -rf "$(ROOT_DIR)/.cache"
 
 clean-bundle:
-	rm -rf runtime/msys2 .cache/msys2
+	rm -rf runtime .cache
 
 windows-clean-deploy:
 	rm -rf "$(WIN_DEPLOY_DIR)"

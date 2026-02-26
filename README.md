@@ -54,7 +54,8 @@ make
 Create a runnable `dist` bundle with bundled `rsync`:
 
 ```bash
-make BUNDLE_RSYNC=1 windows-deploy
+make bundle-rsync
+make windows-deploy
 ```
 
 Create an installer:
@@ -92,7 +93,7 @@ Targets:
 - `make clean-bundle`: remove bundled rsync and cache
 - `make windows-deploy`: create `dist/` with `simple-mirror.exe`, MinGW runtime DLLs, Qt runtime via `windeployqt`, locales, and bundled rsync if present
 - `make windows-installer`: run `windows-deploy` and build an NSIS installer (`simple-mirror-setup-<version>.exe`)
-- `make windows-all`: Windows pipeline (`all` + `translations` + `windows-installer`)
+- `make windows-all`: Windows pipeline (`all` + `windows-installer`, and auto `bundle-rsync` when no deploy lock is present)
 - `make windows-clean-deploy`: remove `dist/`
 
 ## Translations
@@ -118,7 +119,7 @@ Rsync bundling is separate from normal build:
 
 - default: `make`
 - explicit bundle: `make bundle-rsync`
-- build + bundle: `make BUNDLE_RSYNC=1`
+- build + installer pipeline: `make windows-all`
 
 For runnable packaging outside MSYS2 on Windows:
 

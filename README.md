@@ -54,13 +54,13 @@ make
 Create a runnable `dist` bundle with bundled `rsync`:
 
 ```bash
-make BUNDLE_RSYNC=1 deploy-windows
+make BUNDLE_RSYNC=1 windows-deploy
 ```
 
 Create an installer:
 
 ```bash
-make APP_VERSION=1.0.0 installer-windows
+make APP_VERSION=1.0.0 windows-installer
 ```
 
 Outputs:
@@ -73,7 +73,7 @@ Outputs:
 - Runtime app icon uses bundled files first:
   - `resources/icons/icon.png`
   - `resources/icons/icon.ico`
-- `make deploy-windows` copies `resources/icons` into `dist/resources/icons`
+- `make windows-deploy` copies `resources/icons` into `dist/resources/icons`
 - Installer UI and shortcut icons use `resources/icons/icon.ico` when present
 - Windows executable icon embedding is enabled when `resources/icons/icon.ico` exists
 
@@ -86,16 +86,14 @@ Targets:
 
 - `make run`: build and run
 - `make clean`: remove objects, binary, compiled `.qm`
-- `make clean-all`: full cleanup (`clean`, runtime bundle, MSYS2 bundle/cache, `dist`, installer `.exe`)
+- `make clean-all`: full cleanup (`clean`, MSYS2 bundle/cache, `dist`, installer `.exe`)
 - `make translations`: compile `resources/locales/<lang>/LC_MESSAGES/simple-mirror.ts` to `.qm`
 - `make bundle-rsync`: download and bundle MSYS2 `rsync` into `runtime/msys2`
 - `make clean-bundle`: remove bundled rsync and cache
-- `make bundle-runtime`: Linux-only runtime bundling (shared libs + Qt plugins + `qt.conf` next to executable)
-- `make clean-runtime`: remove files created by `bundle-runtime`
-- `make deploy-windows`: create `dist/` with `simple-mirror.exe`, MinGW runtime DLLs, Qt runtime via `windeployqt`, locales, and bundled rsync if present
-- `make installer-windows`: run `deploy-windows` and build an NSIS installer (`simple-mirror-setup-<version>.exe`)
-- `make windows-all`: Windows full pipeline (`clean-all` + bundled rsync + deploy + installer)
-- `make clean-windows-deploy`: remove `dist/`
+- `make windows-deploy`: create `dist/` with `simple-mirror.exe`, MinGW runtime DLLs, Qt runtime via `windeployqt`, locales, and bundled rsync if present
+- `make windows-installer`: run `windows-deploy` and build an NSIS installer (`simple-mirror-setup-<version>.exe`)
+- `make windows-all`: Windows pipeline (`all` + `translations` + `windows-installer`)
+- `make windows-clean-deploy`: remove `dist/`
 
 ## Translations
 
@@ -125,7 +123,7 @@ Rsync bundling is separate from normal build:
 For runnable packaging outside MSYS2 on Windows:
 
 ```bash
-make deploy-windows
+make windows-deploy
 ```
 
 On Windows, selected folder paths are converted to MSYS2 POSIX format before rsync call, example: `C:\Data\Backup\` -> `/cygdrive/c/Data/Backup/`

@@ -186,7 +186,7 @@ bool RsyncRunner::resolve_rsync_executable(std::string& error) {
 #ifdef _WIN32
     error = QCoreApplication::translate(
                 "RsyncRunner",
-                "Could not find bundled MSYS2 rsync. Use \"make BUNDLE_RSYNC=1 deploy-windows\", "
+                "Could not find bundled MSYS2 rsync. Use \"make BUNDLE_RSYNC=1 windows-deploy\", "
                 "or set SIMPLE_MIRROR_RSYNC to an MSYS2 rsync.exe.")
                 .toStdString();
 #else

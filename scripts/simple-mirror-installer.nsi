@@ -11,7 +11,7 @@ RequestExecutionLevel admin
 
 !if /FileExists "..\dist\simple-mirror.exe"
 !else
-!error "dist\\simple-mirror.exe not found Run make deploy-windows first"
+!error "dist\\simple-mirror.exe not found Run make windows-deploy first"
 !endif
 
 !define APP_NAME "Simple Mirror"

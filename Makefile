@@ -28,19 +28,20 @@ QM_FILES := $(patsubst %/simple-mirror.ts,%/simple-mirror.qm,$(LOCALE_TS_FILES))
 MSYS2_BUNDLE_SCRIPT := scripts/bundle-msys2-rsync.sh
 WIN_DLL_COLLECT_SCRIPT := scripts/collect-win-dlls.sh
 MSYS2_RSYNC_EXE := runtime/msys2/usr/bin/rsync.exe
-RUNTIME_MANIFEST := $(ROOT_DIR)/.runtime-libs-manifest
 WIN_DEPLOY_DIR := $(ROOT_DIR)/dist
 WIN_ICON_ICO := resources/icons/icon.ico
 WIN_ICON_RC := resources/icons/app-icon.rc
 WIN_ICON_OBJ := resources/icons/app-icon.o
 WIN_MINGW_BIN := $(dir $(shell command -v $(CXX) 2>/dev/null))
 NSIS_SCRIPT := scripts/simple-mirror-installer.nsi
+WIN_DLLS_LOCK := $(WIN_DEPLOY_DIR)/.collect-win-dlls.lock
+WIN_DEPLOY_LOCK := $(WIN_DEPLOY_DIR)/.windows-deploy.lock
 
 ifeq ($(IS_WINDOWS),1)
 BIN := $(WIN_DEPLOY_DIR)/simple-mirror.exe
 LDFLAGS += -mwindows
 ifneq ($(wildcard $(WIN_ICON_ICO)),)
-OBJ += $(WIN_ICON_OBJ)
+WIN_ICON_LINK_OBJ := $(WIN_ICON_OBJ)
 endif
 else
 BIN := $(ROOT_DIR)/simple-mirror
@@ -49,21 +50,23 @@ endif
 
 BIN_DIR := $(dir $(BIN))
 ALL_TARGETS := $(BIN) $(if $(filter 1,$(BUNDLE_RSYNC)),$(MSYS2_RSYNC_EXE))
-DEPLOY_WINDOWS_DEPS := $(BIN) translations $(if $(filter 1,$(BUNDLE_RSYNC)),$(MSYS2_RSYNC_EXE))
+WINDOWS_DEPLOY_DEPS := $(BIN) translations $(if $(filter 1,$(BUNDLE_RSYNC)),$(MSYS2_RSYNC_EXE))
 
-.PHONY: all run clean clean-all windows-all bundle-rsync clean-bundle bundle-runtime clean-runtime deploy-windows clean-windows-deploy translations installer-windows
+.PHONY: all run clean clean-all windows-all bundle-rsync clean-bundle windows-deploy windows-clean-deploy translations windows-installer
 
 all: $(ALL_TARGETS) translations
 
 $(BIN): $(OBJ)
 	@mkdir -p "$(dir $@)"
-	$(CXX) $(CXXFLAGS) $(LDFLAGS) -o $@ $(OBJ) $(QT_LIBS)
+ifeq ($(IS_WINDOWS),1)
+ifneq ($(wildcard $(WIN_ICON_ICO)),)
+	$(WINDRES) -i $(WIN_ICON_RC) -o $(WIN_ICON_OBJ)
+endif
+endif
+	$(CXX) $(CXXFLAGS) $(LDFLAGS) -o $@ $(OBJ) $(WIN_ICON_LINK_OBJ) $(QT_LIBS)
 
 src/%.o: src/%.cpp
 	$(CXX) $(CXXFLAGS) $(QT_CFLAGS) -c $< -o $@
-
-$(WIN_ICON_OBJ): $(WIN_ICON_RC) $(WIN_ICON_ICO)
-	$(WINDRES) -i $(WIN_ICON_RC) -o $@
 
 translations: $(QM_FILES)
 
@@ -75,9 +78,27 @@ bundle-rsync: $(MSYS2_RSYNC_EXE)
 $(MSYS2_RSYNC_EXE): $(MSYS2_BUNDLE_SCRIPT)
 	$(MSYS2_BUNDLE_SCRIPT)
 
-deploy-windows: $(DEPLOY_WINDOWS_DEPS)
+windows-deploy: $(WINDOWS_DEPLOY_DEPS)
 ifeq ($(IS_WINDOWS),1)
 	@set -eu; \
+	needs_deploy=0; \
+	if [ "$${FORCE_WINDOWS_DEPLOY:-0}" = "1" ] || [ ! -f "$(WIN_DEPLOY_LOCK)" ]; then \
+		needs_deploy=1; \
+	fi; \
+	if [ "$$needs_deploy" = "0" ] && [ "$(BIN)" -nt "$(WIN_DEPLOY_LOCK)" ]; then \
+		needs_deploy=1; \
+	fi; \
+	resources_updated="$$(find resources -type f -newer "$(WIN_DEPLOY_LOCK)" -print -quit 2>/dev/null || true)"; \
+	if [ "$$needs_deploy" = "0" ] && [ -n "$$resources_updated" ]; then \
+		needs_deploy=1; \
+	fi; \
+	if [ "$$needs_deploy" = "0" ] && [ -f "$(MSYS2_RSYNC_EXE)" ] && [ "$(MSYS2_RSYNC_EXE)" -nt "$(WIN_DEPLOY_LOCK)" ]; then \
+		needs_deploy=1; \
+	fi; \
+	if [ "$$needs_deploy" = "0" ]; then \
+		echo "Skipping windows-deploy (lock found: $(WIN_DEPLOY_LOCK))"; \
+		exit 0; \
+	fi; \
 	exe_name="$$(basename "$(BIN)")"; \
 	qt_bin_dir="$$(qtpaths6 --query QT_INSTALL_BINS 2>/dev/null || true)"; \
 	if [ -z "$$qt_bin_dir" ]; then qt_bin_dir="$$(qtpaths --query QT_INSTALL_BINS 2>/dev/null || true)"; fi; \
@@ -98,75 +119,42 @@ ifeq ($(IS_WINDOWS),1)
 	else \
 		echo "Warning: windeployqt not found, Qt runtime was not auto-copied"; \
 	fi; \
-	echo "Collecting runtime DLL dependencies with ldd (this may take a while)"; \
-	bash "$(WIN_DLL_COLLECT_SCRIPT)" "$(WIN_DEPLOY_DIR)" "$(WIN_MINGW_BIN)" "$$qt_bin_dir"; \
+	if [ "$${FORCE_WIN_DLL_COLLECT:-0}" = "1" ] || [ ! -f "$(WIN_DLLS_LOCK)" ]; then \
+		echo "Collecting runtime DLL dependencies with ldd (this may take a while)"; \
+		bash "$(WIN_DLL_COLLECT_SCRIPT)" "$(WIN_DEPLOY_DIR)" "$(WIN_MINGW_BIN)" "$$qt_bin_dir"; \
+		touch "$(WIN_DLLS_LOCK)"; \
+	else \
+		echo "Skipping collect-win-dlls (lock found: $(WIN_DLLS_LOCK))"; \
+	fi; \
+	touch "$(WIN_DEPLOY_LOCK)"; \
 	echo "Windows deployment is ready in $(WIN_DEPLOY_DIR)"
 else
-	@echo "deploy-windows is $(WINDOWS_ENV_MSG)"
+	@echo "windows-deploy is $(WINDOWS_ENV_MSG)"
 	@exit 1
 endif
 
-installer-windows: deploy-windows
+windows-installer: windows-deploy
 ifeq ($(IS_WINDOWS),1)
 	@if ! command -v "$(NSIS)" >/dev/null 2>&1; then \
-		echo "installer-windows requires NSIS (makensis)"; \
+		echo "windows-installer requires NSIS (makensis)"; \
 		exit 1; \
 	fi
 	MSYS2_ARG_CONV_EXCL='/INPUTCHARSET;/OUTPUTCHARSET' \
 	"$(NSIS)" /INPUTCHARSET UTF8 /OUTPUTCHARSET UTF8 -DAPP_VERSION="$(APP_VERSION)" "$(NSIS_SCRIPT)"
 	@echo "NSIS installer created: $(ROOT_DIR)/simple-mirror-setup-$(APP_VERSION).exe"
 else
-	@echo "installer-windows is $(WINDOWS_ENV_MSG)"
+	@echo "windows-installer is $(WINDOWS_ENV_MSG)"
 	@exit 1
 endif
 
 windows-all:
 ifeq ($(IS_WINDOWS),1)
-	$(MAKE) BUNDLE_RSYNC=1 installer-windows
+	$(MAKE) all
+	$(MAKE) translations
+	$(MAKE) windows-installer
 else
 	@echo "windows-all is $(WINDOWS_ENV_MSG)"
 	@exit 1
-endif
-
-bundle-runtime: $(BIN)
-ifeq ($(IS_WINDOWS),1)
-	@echo "bundle-runtime is Linux-only Use deploy-windows on Windows"
-	@exit 1
-else
-	@set -eu; \
-	command -v ldd >/dev/null 2>&1 || { echo "bundle-runtime requires ldd"; exit 1; }; \
-	: > "$(RUNTIME_MANIFEST)"; \
-	copy_deps() { \
-		target="$$1"; \
-		ldd "$$target" \
-			| awk '/=>/ {print $$3} /^[[:space:]]*\/.*[[:space:]]+\(/ {print $$1}' \
-			| sort -u \
-			| while read -r lib; do \
-				[ -n "$$lib" ] || continue; \
-				[ -f "$$lib" ] || continue; \
-				base="$$(basename "$$lib")"; \
-				case "$$base" in linux-vdso.so*|ld-linux*.so*|ld-musl-*.so*) continue ;; esac; \
-				dest="$(BIN_DIR)$$base"; \
-				echo "$$dest" >> "$(RUNTIME_MANIFEST)"; \
-				if [ ! -e "$$dest" ]; then \
-					cp -L "$$lib" "$$dest"; \
-				fi; \
-			done; \
-	}; \
-	copy_deps "$(BIN)"; \
-	qt_plugin_dir="$$(qtpaths6 --plugin-dir 2>/dev/null || true)"; \
-	if [ -z "$$qt_plugin_dir" ]; then qt_plugin_dir="$$(qtpaths --plugin-dir 2>/dev/null || true)"; fi; \
-	if [ -z "$$qt_plugin_dir" ]; then qt_plugin_dir="$$(pkg-config --variable=pluginsdir Qt6Core 2>/dev/null || true)"; fi; \
-	if [ -n "$$qt_plugin_dir" ] && [ -d "$$qt_plugin_dir/platforms" ]; then \
-		mkdir -p "$(BIN_DIR)plugins"; \
-		cp -a "$$qt_plugin_dir/platforms" "$(BIN_DIR)plugins/"; \
-		find "$(BIN_DIR)plugins/platforms" -type f -name '*.so*' | while read -r plugin; do \
-			copy_deps "$$plugin"; \
-		done; \
-	fi; \
-	sort -u "$(RUNTIME_MANIFEST)" -o "$(RUNTIME_MANIFEST)"; \
-	printf '[Paths]\nPlugins = plugins\n' > "$(BIN_DIR)qt.conf"; \
-	echo "Runtime dependencies copied next to $(BIN)"
 endif
 
 run: $(BIN)
@@ -177,17 +165,12 @@ clean:
 	rm -f "$(WIN_ICON_OBJ)"
 	rm -f $(BIN) $(QM_FILES)
 
-clean-all: clean clean-runtime clean-bundle clean-windows-deploy
+clean-all: clean clean-bundle windows-clean-deploy
 	rm -f "$(ROOT_DIR)"/simple-mirror-setup-*.exe
 	rm -rf "$(ROOT_DIR)/.cache"
 
 clean-bundle:
 	rm -rf runtime/msys2 .cache/msys2
 
-clean-windows-deploy:
+windows-clean-deploy:
 	rm -rf "$(WIN_DEPLOY_DIR)"
-
-clean-runtime:
-	if [ -f "$(RUNTIME_MANIFEST)" ]; then xargs -r rm -f < "$(RUNTIME_MANIFEST)"; fi
-	rm -f "$(RUNTIME_MANIFEST)" "$(BIN_DIR)qt.conf"
-	rm -rf "$(BIN_DIR)plugins"

@@ -3,13 +3,16 @@
 #include <filesystem>
 
 #include <QHBoxLayout>
+#include <QLabel>
 #include <QMessageBox>
 #include <QProgressBar>
 #include <QPushButton>
 #include <QSizePolicy>
 #include <QScreen>
 #include <QFontMetrics>
+#include <QLayout>
 #include <QStatusBar>
+#include <QTimer>
 #include <QVBoxLayout>
 #include <QWidget>
 
@@ -99,14 +102,25 @@ QProgressBar#progress-bar::chunk {
   border-radius: 6px;
 }
 
-QStatusBar {
+QStatusBar#status-bar {
   color: #ffe7e7;
   background: #120606;
-  border-top: 1px solid #4a1414;
+  border: none;
+  padding: 0;
+  margin: 0;
 }
 
-QStatusBar::item {
+QStatusBar#status-bar::item {
   border: none;
+  padding: 0;
+  margin: 0;
+}
+
+QLabel#status-label {
+  color: #ffe7e7;
+  font-size: 112%;
+  padding: 0;
+  margin: 0;
 }
 )QSS";
 
@@ -116,21 +130,19 @@ MainWindow::MainWindow(const std::string& icon_name)
     : origin_chooser_(nullptr),
       destination_chooser_(nullptr),
       sync_button_(nullptr),
+      status_bar_(nullptr),
+      status_label_(nullptr),
+      pending_status_text_(),
+      status_update_scheduled_(false),
       progress_bar_(nullptr),
       last_progress_percent_(-1),
       stop_requested_(false) {
     setObjectName("main-window");
     setWindowTitle(tr("Simple Mirror"));
-    setMinimumSize(700, 0);
+    setMinimumSize(700, 350);
+    setFixedSize(750, 350);
 
     app_setup::apply_window_icon(*this, icon_name);
-
-    if (QScreen* screen = this->screen()) {
-        const QRect available = screen->availableGeometry();
-        move(
-            available.center().x() - (width() / 2),
-            available.center().y() - (height() / 2));
-    }
 
     auto* central = new QWidget(this);
     auto* main_layout = new QVBoxLayout(central);
@@ -162,6 +174,16 @@ MainWindow::MainWindow(const std::string& icon_name)
         "browse-destination",
         central);
 
+    auto* origin_label = origin_chooser_->findChild<QLabel*>("origin-label");
+    auto* destination_label = destination_chooser_->findChild<QLabel*>("destination-label");
+    if (origin_label && destination_label) {
+        const int label_width = std::max(
+            origin_label->sizeHint().width(),
+            destination_label->sizeHint().width());
+        origin_label->setFixedWidth(label_width);
+        destination_label->setFixedWidth(label_width);
+    }
+
     directory_column->addWidget(origin_chooser_);
     directory_column->addWidget(destination_chooser_);
 
@@ -191,13 +213,32 @@ MainWindow::MainWindow(const std::string& icon_name)
     progress_bar_->setValue(0);
     progress_bar_->setFormat(tr("Idle"));
 
+    status_bar_ = new QStatusBar(central);
+    status_bar_->setObjectName("status-bar");
+    status_bar_->setSizeGripEnabled(false);
+    status_bar_->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Expanding);
+    status_bar_->setContentsMargins(0, 0, 0, 0);
+    if (QLayout* status_layout = status_bar_->layout()) {
+        status_layout->setContentsMargins(0, 0, 0, 0);
+        status_layout->setSpacing(0);
+    }
+
+    status_label_ = new QLabel(status_bar_);
+    status_label_->setObjectName("status-label");
+    status_label_->setAlignment(Qt::AlignHCenter | Qt::AlignVCenter);
+    status_label_->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Expanding);
+    QFont status_font = status_label_->font();
+    status_font.setPointSizeF(status_font.pointSizeF() * 1.1);
+    status_label_->setFont(status_font);
+    status_label_->setContentsMargins(0, 0, 0, 0);
+    status_bar_->addWidget(status_label_, 1);
+
     main_layout->addLayout(top_row);
-    main_layout->addStretch(1);
+    main_layout->addWidget(status_bar_, 1);
     main_layout->addWidget(progress_bar_);
 
     setCentralWidget(central);
-    statusBar()->setSizeGripEnabled(false);
-    statusBar()->showMessage(tr("Choose two directories to synchronize."));
+    set_status_text(tr("Choose two directories to synchronize."));
     apply_stylesheet();
 
     QObject::connect(sync_button_, &QPushButton::clicked, [this]() { on_sync_clicked(); });
@@ -213,14 +254,14 @@ MainWindow::MainWindow(const std::string& icon_name)
     runner_.set_finished_callback([this](int exit_code, bool signaled) {
         if (stop_requested_ || signaled) {
             progress_bar_->setFormat(tr("Stopped"));
-            statusBar()->showMessage(tr("Stopped"));
+            set_status_text(tr("Stopped"));
         } else if (exit_code == 0) {
             progress_bar_->setValue(100);
             progress_bar_->setFormat(tr("Done"));
-            statusBar()->showMessage(tr("Mirroring complete."));
+            set_status_text(tr("Mirroring complete."));
         } else {
             progress_bar_->setFormat(tr("Failed"));
-            statusBar()->showMessage(tr("Failed"));
+            set_status_text(tr("Failed"));
             show_error(
                 tr("Synchronization failed with exit code %1.").arg(exit_code),
                 tr("Synchronization failed"));
@@ -243,11 +284,38 @@ void MainWindow::apply_stylesheet() {
     setStyleSheet(kAppStyle);
 }
 
+void MainWindow::set_status_text(const QString& text) {
+    if (!status_label_) {
+        return;
+    }
+
+    if (pending_status_text_ == text) {
+        return;
+    }
+
+    pending_status_text_ = text;
+
+    if (status_update_scheduled_) {
+        return;
+    }
+
+    status_update_scheduled_ = true;
+    QTimer::singleShot(0, this, [this]() {
+        status_update_scheduled_ = false;
+        if (!status_label_) {
+            return;
+        }
+        if (status_label_->text() != pending_status_text_) {
+            status_label_->setText(pending_status_text_);
+        }
+    });
+}
+
 void MainWindow::show_current_file(const std::string& text) {
     if (text.empty()) {
         return;
     }
-    statusBar()->showMessage(QString::fromStdString(text));
+    set_status_text(QString::fromStdString(text));
 }
 
 void MainWindow::set_running_state(bool running) {
@@ -259,7 +327,7 @@ void MainWindow::set_running_state(bool running) {
         last_progress_percent_ = -1;
         progress_bar_->setValue(0);
         progress_bar_->setFormat(tr("Running..."));
-        statusBar()->showMessage(tr("Comparing the two folders..."));
+        set_status_text(tr("Comparing the two folders..."));
     }
 }
 
@@ -268,7 +336,7 @@ void MainWindow::on_sync_clicked() {
         stop_requested_ = true;
         runner_.stop();
         progress_bar_->setFormat(tr("Stopping..."));
-        statusBar()->showMessage(tr("Stopping..."));
+        set_status_text(tr("Stopping..."));
         return;
     }
 
@@ -295,7 +363,7 @@ void MainWindow::on_sync_clicked() {
     if (!runner_.start(origin, destination, start_error)) {
         set_running_state(false);
         progress_bar_->setFormat(tr("Error"));
-        statusBar()->showMessage(tr("Error"));
+        set_status_text(tr("Error"));
         show_error(QString::fromStdString(start_error), tr("Synchronization error"));
     }
 }

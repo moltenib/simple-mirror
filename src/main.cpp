@@ -1,6 +1,8 @@
 #include <string>
 
 #include <QApplication>
+#include <QGuiApplication>
+#include <QScreen>
 
 #include "utils/AppSetup.hpp"
 #include "views/MainWindow.hpp"
@@ -15,5 +17,18 @@ int main(int argc, char* argv[]) {
 
     MainWindow window(icon_name);
     window.show();
+
+    QScreen* target_screen = window.screen();
+    if (!target_screen) {
+        target_screen = QGuiApplication::primaryScreen();
+    }
+    if (target_screen) {
+        const QRect available = target_screen->availableGeometry();
+        const QRect frame = window.frameGeometry();
+        const int x = available.left() + ((available.width() - frame.width()) / 2);
+        const int y = available.top() + ((available.height() - frame.height()) / 2);
+        window.move(x, y);
+    }
+
     return app.exec();
 }

@@ -26,6 +26,7 @@ public:
     bool ensure_rsync_available(std::string& error);
     bool start(const std::string& origin, const std::string& destination, std::string& error);
     void stop();
+    bool stop_and_wait(int timeout_ms = 2500);
     bool is_running() const;
 
 private:

@@ -81,6 +81,11 @@ bool RsyncRunner::start(const std::string& origin, const std::string& destinatio
     const QString rsync_path = QString::fromStdString(rsync_executable_);
 #ifdef _WIN32
     configure_windows_process_environment(rsync_path);
+#else
+    QProcessEnvironment env = QProcessEnvironment::systemEnvironment();
+    env.insert("LANG", "C");
+    env.insert("LC_ALL", "C");
+    process_.setProcessEnvironment(env);
 #endif
     process_.start(rsync_path, args);
     if (!process_.waitForStarted()) {
@@ -102,6 +107,24 @@ void RsyncRunner::stop() {
             process->kill();
         }
     });
+}
+
+bool RsyncRunner::stop_and_wait(int timeout_ms) {
+    if (process_.state() == QProcess::NotRunning) {
+        running_ = false;
+        return true;
+    }
+
+    process_.terminate();
+    if (process_.waitForFinished(std::max(timeout_ms, 0))) {
+        running_ = false;
+        return true;
+    }
+
+    process_.kill();
+    const bool finished = process_.waitForFinished(1500);
+    running_ = (process_.state() != QProcess::NotRunning);
+    return finished;
 }
 
 bool RsyncRunner::is_running() const {
@@ -272,6 +295,8 @@ void RsyncRunner::configure_windows_process_environment(const QString& rsync_pat
     env.insert("MSYSTEM", "MSYS");
     env.insert("MSYS2_PATH_TYPE", "inherit");
     env.insert("CHERE_INVOKING", "1");
+    env.insert("LANG", "C");
+    env.insert("LC_ALL", "C");
     process_.setProcessEnvironment(env);
     process_.setWorkingDirectory(app_dir);
 }
@@ -434,7 +459,10 @@ bool RsyncRunner::parse_current_file_line(
     }
 
     if (trimmed.rfind("deleting ", 0) == 0) {
-        file_name = trimmed;
+        const QString deleting_path = QString::fromStdString(trimmed.substr(9));
+        file_name = QCoreApplication::translate("RsyncRunner", "Deleting %1")
+                        .arg(deleting_path)
+                        .toStdString();
         return true;
     }
 

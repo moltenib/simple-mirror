@@ -1,10 +1,12 @@
 #include "views/MainWindow.hpp"
 
+#include <algorithm>
 #include <filesystem>
 
 #include <QHBoxLayout>
 #include <QLabel>
 #include <QMessageBox>
+#include <QPropertyAnimation>
 #include <QProgressBar>
 #include <QPushButton>
 #include <QSizePolicy>
@@ -13,6 +15,8 @@
 #include <QLayout>
 #include <QStatusBar>
 #include <QTimer>
+#include <QCloseEvent>
+#include <QEventLoop>
 #include <QVBoxLayout>
 #include <QWidget>
 
@@ -146,6 +150,7 @@ MainWindow::MainWindow(const std::string& icon_name)
       pending_status_text_(),
       status_update_scheduled_(false),
       progress_bar_(nullptr),
+      progress_animation_(nullptr),
       last_progress_percent_(-1),
       stop_requested_(false),
       sync_started_at_(),
@@ -233,6 +238,9 @@ MainWindow::MainWindow(const std::string& icon_name)
     progress_bar_->setRange(0, 100);
     progress_bar_->setValue(0);
     progress_bar_->setFormat(tr("Idle"));
+    progress_animation_ = new QPropertyAnimation(progress_bar_, "value", this);
+    progress_animation_->setDuration(180);
+    progress_animation_->setEasingCurve(QEasingCurve::OutCubic);
 
     status_bar_ = new QStatusBar(central);
     status_bar_->setObjectName("status-bar");
@@ -269,7 +277,19 @@ MainWindow::MainWindow(const std::string& icon_name)
         if (percent > last_progress_percent_) {
             last_progress_percent_ = percent;
         }
-        progress_bar_->setValue(last_progress_percent_);
+        const int target_percent = std::clamp(last_progress_percent_, 0, 100);
+        if (progress_animation_ && progress_bar_->value() != target_percent) {
+            const int current_percent = progress_bar_->value();
+            const int delta = std::abs(target_percent - current_percent);
+            const int animation_duration = std::clamp(90 + (delta * 20), 90, 300);
+            progress_animation_->stop();
+            progress_animation_->setDuration(animation_duration);
+            progress_animation_->setStartValue(current_percent);
+            progress_animation_->setEndValue(target_percent);
+            progress_animation_->start();
+        } else {
+            progress_bar_->setValue(target_percent);
+        }
 
         QString format = QString::fromStdString(progress_line);
         const int percent_sign = format.indexOf('%');
@@ -283,6 +303,9 @@ MainWindow::MainWindow(const std::string& icon_name)
         progress_bar_->setFormat(format);
     });
     runner_.set_finished_callback([this](int exit_code, bool signaled) {
+        if (progress_animation_) {
+            progress_animation_->stop();
+        }
         if (stop_requested_ || signaled) {
             progress_bar_->setFormat(tr("Stopped"));
             set_status_text(tr("The program has stopped. Press the button to resume."));
@@ -316,8 +339,25 @@ MainWindow::~MainWindow() {
     runner_.set_progress_callback(nullptr);
     runner_.set_finished_callback(nullptr);
     if (runner_.is_running()) {
-        runner_.stop();
+        runner_.stop_and_wait();
     }
+}
+
+void MainWindow::closeEvent(QCloseEvent* event) {
+    if (!runner_.is_running()) {
+        QMainWindow::closeEvent(event);
+        return;
+    }
+
+    stop_requested_ = true;
+    if (progress_animation_) {
+        progress_animation_->stop();
+    }
+    progress_bar_->setFormat(tr("Stopping..."));
+    set_status_text(tr("Stopping..."));
+    QCoreApplication::processEvents(QEventLoop::ExcludeUserInputEvents);
+    runner_.stop_and_wait();
+    event->accept();
 }
 
 void MainWindow::apply_stylesheet() {
@@ -367,6 +407,9 @@ void MainWindow::set_running_state(bool running) {
         sync_started_at_ = std::chrono::steady_clock::now();
         sync_timing_active_ = true;
         last_progress_percent_ = -1;
+        if (progress_animation_) {
+            progress_animation_->stop();
+        }
         progress_bar_->setValue(0);
         progress_bar_->setFormat(tr("Running..."));
         set_status_text(tr("Comparing the two folders..."));

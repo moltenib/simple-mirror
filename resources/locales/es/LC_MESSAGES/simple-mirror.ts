@@ -159,5 +159,9 @@
         <source>Could not find rsync. Set SIMPLE_MIRROR_RSYNC, add rsync to PATH, or bundle &quot;runtime/bin/rsync&quot; on Linux, or &quot;runtime/msys2/usr/bin/rsync.exe&quot; on Windows.</source>
         <translation>No se pudo encontrar rsync. Defina SIMPLE_MIRROR_RSYNC, añada rsync al PATH o incluya &quot;runtime/bin/rsync&quot; en Linux o &quot;runtime/msys2/usr/bin/rsync.exe&quot; en Windows.</translation>
     </message>
+    <message>
+        <source>Deleting %1</source>
+        <translation>Eliminando %1</translation>
+    </message>
 </context>
 </TS>

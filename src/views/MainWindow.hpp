@@ -12,8 +12,10 @@
 class QPushButton;
 class QProgressBar;
 class QLabel;
+class QPropertyAnimation;
 class QStatusBar;
 class QString;
+class QCloseEvent;
 
 class MainWindow : public QMainWindow {
 public:
@@ -21,6 +23,9 @@ public:
 public:
     explicit MainWindow(const std::string& icon_name);
     ~MainWindow() override;
+
+protected:
+    void closeEvent(QCloseEvent* event) override;
 
 private:
     void apply_stylesheet();
@@ -42,6 +47,7 @@ private:
     QString pending_status_text_;
     bool status_update_scheduled_;
     QProgressBar* progress_bar_;
+    QPropertyAnimation* progress_animation_;
     int last_progress_percent_;
     bool stop_requested_;
     std::chrono::steady_clock::time_point sync_started_at_;

@@ -20,6 +20,7 @@
 #include <QVBoxLayout>
 #include <QWidget>
 
+#include "views/ConfirmationDialog.hpp"
 #include "utils/AppSetup.hpp"
 #include "utils/DurationFormat.hpp"
 #include "utils/Settings.hpp"
@@ -457,14 +458,16 @@ void MainWindow::on_sync_clicked() {
 }
 
 bool MainWindow::confirm_synchronize() {
-    QMessageBox dialog(this);
-    dialog.setWindowTitle(tr("Notice"));
-    dialog.setIcon(QMessageBox::Warning);
-    dialog.setText(tr("Any files in the destination folder that do not exist in the origin will be deleted."));
-    dialog.setInformativeText(tr("This is to keep the destination folder up to date. Continue?"));
-    dialog.setStandardButtons(QMessageBox::Ok | QMessageBox::Cancel);
-    dialog.setDefaultButton(QMessageBox::Cancel);
-    return dialog.exec() == QMessageBox::Ok;
+    const QString body_text = tr(
+        "Any files in the destination folder that do not exist in the origin will be deleted.\n\n"
+        "This is to keep the destination folder up to date. The origin folder is never altered.\n"
+        "Continue?");
+    return confirmation_dialog::show(
+        this,
+        tr("Notice"),
+        tr("WARNING: POSSIBLE DATA LOSS!"),
+        body_text,
+        tr("I understand the risk"));
 }
 
 bool MainWindow::validate_inputs(std::string& origin, std::string& destination) {

@@ -117,12 +117,30 @@
         <translation>Melding</translation>
     </message>
     <message>
+        <source>I understand the risk</source>
+        <translation>Ik begrijp het risico</translation>
+    </message>
+    <message>
+        <source>WARNING: POSSIBLE DATA LOSS!</source>
+        <translation>WAARSCHUWING: MOGELIJK GEGEVENSVERLIES</translation>
+    </message>
+    <message>
+        <source>Any files in the destination folder that do not exist in the origin will be deleted.
+
+This is to keep the destination folder up to date. The origin folder is never altered.
+Continue?</source>
+        <translation>Bestanden in de doelmap die niet in de bronmap bestaan, worden verwijderd.
+
+Hiermee blijft de doelmap up-to-date. De bronmap wordt nooit gewijzigd.
+Wilt u doorgaan?</translation>
+    </message>
+    <message>
         <source>Any files in the destination folder that do not exist in the origin will be deleted.</source>
         <translation>Bestanden in de doelmap die niet in de bronmap bestaan, worden verwijderd.</translation>
     </message>
     <message>
-        <source>This is to keep the destination folder up to date. Continue?</source>
-        <translation>Hiermee blijft de doelmap up-to-date. Wilt u doorgaan?</translation>
+        <source>This is to keep the destination folder up to date. The origin folder is never altered. Continue?</source>
+        <translation>Hiermee blijft de doelmap up-to-date. De bronmap wordt nooit gewijzigd. Wilt u doorgaan?</translation>
     </message>
     <message>
         <source>Please choose both origin and destination folders.</source>

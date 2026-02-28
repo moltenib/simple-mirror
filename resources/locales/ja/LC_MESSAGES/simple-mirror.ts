@@ -117,12 +117,30 @@
         <translation>確認</translation>
     </message>
     <message>
+        <source>I understand the risk</source>
+        <translation>リスクを理解しました</translation>
+    </message>
+    <message>
+        <source>WARNING: POSSIBLE DATA LOSS!</source>
+        <translation>警告: データ損失の可能性があります</translation>
+    </message>
+    <message>
+        <source>Any files in the destination folder that do not exist in the origin will be deleted.
+
+This is to keep the destination folder up to date. The origin folder is never altered.
+Continue?</source>
+        <translation>コピー先フォルダーにあり、コピー元に存在しないファイルは削除されます。
+
+コピー先フォルダーを最新状態に保つためです。コピー元フォルダーは変更されません。
+続行しますか？</translation>
+    </message>
+    <message>
         <source>Any files in the destination folder that do not exist in the origin will be deleted.</source>
         <translation>コピー先フォルダーにあり、コピー元に存在しないファイルは削除されます。</translation>
     </message>
     <message>
-        <source>This is to keep the destination folder up to date. Continue?</source>
-        <translation>コピー先フォルダーを最新状態に保つためです。続行しますか？</translation>
+        <source>This is to keep the destination folder up to date. The origin folder is never altered. Continue?</source>
+        <translation>コピー先フォルダーを最新状態に保つためです。コピー元フォルダーは変更されません。続行しますか？</translation>
     </message>
     <message>
         <source>Please choose both origin and destination folders.</source>

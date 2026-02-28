@@ -117,12 +117,30 @@
         <translation>Aviso</translation>
     </message>
     <message>
+        <source>I understand the risk</source>
+        <translation>Compreendo o risco</translation>
+    </message>
+    <message>
+        <source>WARNING: POSSIBLE DATA LOSS!</source>
+        <translation>AVISO: POSSÍVEL PERDA DE DADOS</translation>
+    </message>
+    <message>
+        <source>Any files in the destination folder that do not exist in the origin will be deleted.
+
+This is to keep the destination folder up to date. The origin folder is never altered.
+Continue?</source>
+        <translation>Quaisquer ficheiros na pasta de destino que não existam na origem serão eliminados.
+
+Isto mantém a pasta de destino atualizada. A pasta de origem nunca é alterada.
+Continuar?</translation>
+    </message>
+    <message>
         <source>Any files in the destination folder that do not exist in the origin will be deleted.</source>
         <translation>Quaisquer ficheiros na pasta de destino que não existam na origem serão eliminados.</translation>
     </message>
     <message>
-        <source>This is to keep the destination folder up to date. Continue?</source>
-        <translation>Isto mantém a pasta de destino atualizada. Continuar?</translation>
+        <source>This is to keep the destination folder up to date. The origin folder is never altered. Continue?</source>
+        <translation>Isto mantém a pasta de destino atualizada. A pasta de origem nunca é alterada. Continuar?</translation>
     </message>
     <message>
         <source>Please choose both origin and destination folders.</source>

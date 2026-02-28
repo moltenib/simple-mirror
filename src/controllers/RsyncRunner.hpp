@@ -36,8 +36,8 @@ private:
     bool has_msys2_runtime(const QString& rsync_path) const;
     void configure_windows_process_environment(const QString& rsync_path);
 #endif
-    void handle_ready_read();
-    void handle_finished(int exit_code, int exit_status);
+    void on_ready_read();
+    void on_finished(int exit_code, int exit_status);
     void emit_filtered_line(const std::string& line);
     bool parse_overall_progress_line(
         const std::string& line,

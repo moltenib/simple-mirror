@@ -16,14 +16,14 @@ RsyncRunner::RsyncRunner() : process_(), running_(false) {
     process_.setProcessChannelMode(QProcess::MergedChannels);
 
     QObject::connect(&process_, &QProcess::readyReadStandardOutput, [this]() {
-        handle_ready_read();
+        on_ready_read();
     });
 
     QObject::connect(
         &process_,
         qOverload<int, QProcess::ExitStatus>(&QProcess::finished),
         [this](int exit_code, QProcess::ExitStatus exit_status) {
-            handle_finished(exit_code, static_cast<int>(exit_status));
+            on_finished(exit_code, static_cast<int>(exit_status));
         });
 }
 
@@ -333,7 +333,7 @@ std::string ltrim_copy(const std::string& value) {
 
 }  // namespace
 
-void RsyncRunner::handle_ready_read() {
+void RsyncRunner::on_ready_read() {
     const QByteArray data = process_.readAllStandardOutput();
     if (data.isEmpty()) {
         return;
@@ -365,7 +365,7 @@ void RsyncRunner::handle_ready_read() {
     }
 }
 
-void RsyncRunner::handle_finished(int exit_code, int exit_status) {
+void RsyncRunner::on_finished(int exit_code, int exit_status) {
     if (!pending_output_.empty()) {
         emit_filtered_line(pending_output_);
         pending_output_.clear();

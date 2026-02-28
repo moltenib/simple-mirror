@@ -128,10 +128,12 @@
         <source>Any files in the destination folder that do not exist in the origin will be deleted.
 
 This is to keep the destination folder up to date. The origin folder is never altered.
+
 Continue?</source>
         <translation>コピー先フォルダーにあり、コピー元に存在しないファイルは削除されます。
 
 コピー先フォルダーを最新状態に保つためです。コピー元フォルダーは変更されません。
+
 続行しますか？</translation>
     </message>
     <message>

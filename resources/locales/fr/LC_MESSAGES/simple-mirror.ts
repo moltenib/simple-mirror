@@ -128,10 +128,12 @@
         <source>Any files in the destination folder that do not exist in the origin will be deleted.
 
 This is to keep the destination folder up to date. The origin folder is never altered.
+
 Continue?</source>
         <translation>Les fichiers du dossier de destination qui n&apos;existent pas dans l&apos;origine seront supprimés.
 
 Cela permet de maintenir le dossier de destination à jour. Le dossier d&apos;origine n&apos;est jamais modifié.
+
 Continuer ?</translation>
     </message>
     <message>

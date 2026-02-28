@@ -460,7 +460,7 @@ void MainWindow::on_sync_clicked() {
 bool MainWindow::confirm_synchronize() {
     const QString body_text = tr(
         "Any files in the destination folder that do not exist in the origin will be deleted.\n\n"
-        "This is to keep the destination folder up to date. The origin folder is never altered.\n"
+        "This is to keep the destination folder up to date. The origin folder is never altered.\n\n"
         "Continue?");
     return confirmation_dialog::show(
         this,

@@ -128,10 +128,12 @@
         <source>Any files in the destination folder that do not exist in the origin will be deleted.
 
 This is to keep the destination folder up to date. The origin folder is never altered.
+
 Continue?</source>
         <translation>Bestanden in de doelmap die niet in de bronmap bestaan, worden verwijderd.
 
 Hiermee blijft de doelmap up-to-date. De bronmap wordt nooit gewijzigd.
+
 Wilt u doorgaan?</translation>
     </message>
     <message>

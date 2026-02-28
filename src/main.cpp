@@ -3,6 +3,7 @@
 #include <QApplication>
 #include <QGuiApplication>
 #include <QScreen>
+#include <QTimer>
 
 #include "utils/AppSetup.hpp"
 #include "views/MainWindow.hpp"
@@ -29,6 +30,11 @@ int main(int argc, char* argv[]) {
         const int y = available.top() + ((available.height() - frame.height()) / 2);
         window.move(x, y);
     }
+
+    QTimer::singleShot(0, &window, [&window]() {
+        window.raise();
+        window.activateWindow();
+    });
 
     return app.exec();
 }

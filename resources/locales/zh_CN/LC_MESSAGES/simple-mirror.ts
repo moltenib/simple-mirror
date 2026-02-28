@@ -128,10 +128,12 @@
         <source>Any files in the destination folder that do not exist in the origin will be deleted.
 
 This is to keep the destination folder up to date. The origin folder is never altered.
+
 Continue?</source>
         <translation>目标文件夹中不存在于源目录的文件将被删除。
 
 这样可以让目标文件夹保持最新。源文件夹永远不会被修改。
+
 是否继续？</translation>
     </message>
     <message>

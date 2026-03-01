@@ -1,6 +1,15 @@
 #include "views/MainWindowMisc.hpp"
 
+#include <algorithm>
+
+#include <QCoreApplication>
+#include <QFont>
+#include <QFontMetrics>
+#include <QLabel>
+#include <QLayout>
 #include <QMainWindow>
+#include <QSizePolicy>
+#include <QStyle>
 #include <QString>
 
 MainWindowStyle::MainWindowStyle()
@@ -123,4 +132,92 @@ QLabel#status-label {
 
 void MainWindowStyle::applyTo(QMainWindow& window) const {
     window.setStyleSheet(stylesheet_);
+}
+
+SyncButton::SyncButton(QWidget* parent)
+    : QPushButton(parent),
+      synchronize_text_(QCoreApplication::translate("MainWindow", "Synchronize")),
+      combine_text_(QCoreApplication::translate("MainWindow", "Combine")),
+      stop_text_(QCoreApplication::translate("MainWindow", "Stop")),
+      running_(false),
+      combine_mode_(false) {
+    setObjectName("sync-button");
+    setSizePolicy(QSizePolicy::Fixed, QSizePolicy::Expanding);
+    setProperty("combineMode", false);
+    recomputeMinimumWidth();
+    updateVisualState();
+}
+
+void SyncButton::setRunningState(bool running, bool combine_mode) {
+    running_ = running;
+    combine_mode_ = combine_mode;
+
+    const bool combine_property = !running_ && combine_mode_;
+    if (property("combineMode").toBool() != combine_property) {
+        setProperty("combineMode", combine_property);
+        style()->unpolish(this);
+        style()->polish(this);
+    }
+
+    updateVisualState();
+}
+
+void SyncButton::recomputeMinimumWidth() {
+    const QFontMetrics metrics(font());
+    const int minimum_width = std::max(
+                                  std::max(
+                                      metrics.horizontalAdvance(synchronize_text_),
+                                      metrics.horizontalAdvance(combine_text_)),
+                                  metrics.horizontalAdvance(stop_text_)) +
+                              32;
+    setMinimumWidth(minimum_width);
+}
+
+void SyncButton::updateVisualState() {
+    if (running_) {
+        setText(stop_text_);
+        return;
+    }
+    setText(combine_mode_ ? combine_text_ : synchronize_text_);
+}
+
+ProgressBarWidget::ProgressBarWidget(QWidget* parent)
+    : QProgressBar(parent) {
+    setObjectName("progress-bar");
+    setRange(0, 100);
+    setValue(0);
+    setFormat(QCoreApplication::translate("MainWindow", "Idle"));
+}
+
+StatusBarWidget::StatusBarWidget(QWidget* parent)
+    : QStatusBar(parent),
+      label_(new QLabel(this)) {
+    setObjectName("status-bar");
+    setSizeGripEnabled(false);
+    setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Expanding);
+    setContentsMargins(0, 0, 0, 0);
+
+    if (QLayout* status_layout = layout()) {
+        status_layout->setContentsMargins(0, 0, 0, 0);
+        status_layout->setSpacing(0);
+    }
+
+    label_->setObjectName("status-label");
+    label_->setAlignment(Qt::AlignHCenter | Qt::AlignVCenter);
+    label_->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Expanding);
+    label_->setContentsMargins(0, 0, 0, 0);
+
+    QFont status_font = label_->font();
+    status_font.setPointSizeF(status_font.pointSizeF() * 1.1);
+    label_->setFont(status_font);
+
+    addWidget(label_, 1);
+}
+
+void StatusBarWidget::setStatusText(const QString& text) {
+    label_->setText(text);
+}
+
+QString StatusBarWidget::statusText() const {
+    return label_->text();
 }

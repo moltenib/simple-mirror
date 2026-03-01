@@ -18,7 +18,7 @@ UNAME_S := $(shell uname -s 2>/dev/null || echo)
 IS_WINDOWS := $(if $(filter Windows_NT,$(OS))$(filter MSYS% MINGW% CYGWIN%,$(UNAME_S)),1,0)
 WINDOWS_ENV_MSG := only available in a Windows/MSYS2 environment
 
-SRC := src/main.cpp src/views/MainWindow.cpp src/views/MainWindowMisc.cpp src/views/SyncButton.cpp src/views/ProgressBarWidget.cpp src/views/StatusBarWidget.cpp src/views/ConfirmationDialog.cpp src/views/WelcomeDialog.cpp src/controllers/RsyncRunner.cpp src/views/DirectoryChooserWidget.cpp src/utils/AppSetup.cpp src/utils/Settings.cpp src/utils/DurationFormat.cpp
+SRC := src/main.cpp src/views/MainWindow.cpp src/views/MainWindowMisc.cpp src/views/ConfirmationDialog.cpp src/views/WelcomeDialog.cpp src/controllers/RsyncRunner.cpp src/views/DirectoryChooserWidget.cpp src/utils/AppSetup.cpp src/utils/Settings.cpp src/utils/DurationFormat.cpp
 OBJ := $(SRC:.cpp=.o)
 
 LOCALE_TS_FILES := $(wildcard resources/locales/*/LC_MESSAGES/simple-mirror.ts)

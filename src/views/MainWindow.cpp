@@ -19,9 +19,6 @@
 
 #include "views/ConfirmationDialog.hpp"
 #include "views/MainWindowMisc.hpp"
-#include "views/ProgressBarWidget.hpp"
-#include "views/StatusBarWidget.hpp"
-#include "views/SyncButton.hpp"
 #include "views/WelcomeDialog.hpp"
 #include "utils/AppSetup.hpp"
 #include "utils/DurationFormat.hpp"

@@ -1,0 +1,98 @@
+name: Windows (MSYS2) build
+
+on:
+  push:
+    branches: [ master ]
+    tags:
+      - "v*"
+  pull_request:
+  workflow_dispatch:
+
+jobs:
+  windows:
+    runs-on: windows-latest
+
+    # Needed for creating the Release + uploading assets with GITHUB_TOKEN
+    permissions:
+      contents: write
+
+    defaults:
+      run:
+        shell: msys2 {0}
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Setup MSYS2 (MinGW64) + deps
+        uses: msys2/setup-msys2@v2
+        with:
+          msystem: MINGW64
+          update: true
+          cache: true
+          install: >-
+            mingw-w64-x86_64-toolchain
+            mingw-w64-x86_64-pkgconf
+            mingw-w64-x86_64-qt6-base
+            mingw-w64-x86_64-qt6-tools
+            mingw-w64-x86_64-qt6-translations
+            make
+            nsis
+
+      - name: Build (tag -> versioned installer)
+        run: |
+          set -euo pipefail
+
+          if [[ "${GITHUB_REF}" == refs/tags/* ]]; then
+            TAG="${GITHUB_REF#refs/tags/}"
+            VER="${TAG#v}"
+            make APP_VERSION="${VER}" windows-all
+          else
+            make windows-all
+          fi
+
+      - name: Create update manifest (tag builds only)
+        if: startsWith(github.ref, 'refs/tags/')
+        run: |
+          set -euo pipefail
+
+          TAG="${GITHUB_REF#refs/tags/}"
+          VER="${TAG#v}"
+
+          INSTALLER="$(ls -1 simple-mirror-setup-*.exe | head -n 1)"
+          SHA256="$(sha256sum "${INSTALLER}" | awk '{print $1}')"
+          SIZE="$(stat -c%s "${INSTALLER}")"
+
+          REPO="${GITHUB_REPOSITORY}"
+          DOWNLOAD_URL="https://github.com/${REPO}/releases/download/${TAG}/${INSTALLER}"
+
+          cat > manifest.json <<EOF
+          {
+            "app": "simple-mirror",
+            "version": "${VER}",
+            "tag": "${TAG}",
+            "installer": {
+              "name": "${INSTALLER}",
+              "url": "${DOWNLOAD_URL}",
+              "sha256": "${SHA256}",
+              "size": ${SIZE}
+            }
+          }
+          EOF
+
+      - name: Upload artifacts (all runs)
+        uses: actions/upload-artifact@v4
+        with:
+          name: windows-output
+          path: |
+            dist/**
+            simple-mirror-setup-*.exe
+            manifest.json
+
+      - name: Create GitHub Release + upload installer + manifest (tags only)
+        if: startsWith(github.ref, 'refs/tags/')
+        uses: softprops/action-gh-release@v2
+        with:
+          generate_release_notes: true
+          files: |
+            simple-mirror-setup-*.exe
+            manifest.json

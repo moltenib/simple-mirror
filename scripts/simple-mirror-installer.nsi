@@ -30,6 +30,8 @@ InstallDirRegKey HKLM "Software\Simple Mirror" "Install_Dir"
 !define MUI_FINISHPAGE_RUN_TEXT "$(RUN_APP_TEXT)"
 !define MUI_FINISHPAGE_RUN_NOTCHECKED
 !define MUI_FINISHPAGE_RUN_FUNCTION LaunchApp
+!define MUI_WELCOMEFINISHPAGE_BITMAP "..\resources\installer\nsis-blank-sidebar.bmp"
+!define MUI_UNWELCOMEFINISHPAGE_BITMAP "..\resources\installer\nsis-blank-sidebar.bmp"
 !if /FileExists "..\resources\icons\icon.ico"
 !define MUI_ICON "..\resources\icons\icon.ico"
 !define MUI_UNICON "..\resources\icons\icon.ico"

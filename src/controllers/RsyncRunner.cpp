@@ -447,12 +447,6 @@ bool RsyncRunner::parse_current_file_line(
         return false;
     }
 
-    int ignored_percent = 0;
-    std::string ignored_progress_display;
-    if (parse_overall_progress_line(trimmed, ignored_percent, ignored_progress_display)) {
-        return false;
-    }
-
     if (std::regex_search(trimmed, summary_line_regex_)) {
         return false;
     }

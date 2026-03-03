@@ -7,7 +7,6 @@
 #include <QLabel>
 #include <QMessageBox>
 #include <QPropertyAnimation>
-#include <QApplication>
 #include <QGuiApplication>
 #include <QKeyEvent>
 #include <QEvent>
@@ -39,7 +38,6 @@ MainWindow::MainWindow(const std::string& icon_name)
       sync_timing_active_(false) {
     setObjectName("main-window");
     setWindowTitle(tr("Simple Mirror"));
-    setMinimumSize(700, 350);
     setFixedSize(750, 350);
 
     app_setup::apply_window_icon(*this, icon_name);
@@ -120,7 +118,7 @@ MainWindow::MainWindow(const std::string& icon_name)
     setCentralWidget(central);
     set_status_text(tr("Choose two directories to synchronize."));
     apply_stylesheet();
-    qApp->installEventFilter(this);
+    installEventFilter(this);
 
     QObject::connect(sync_button_, &QPushButton::clicked, [this]() { on_sync_clicked(); });
 
@@ -193,7 +191,7 @@ MainWindow::MainWindow(const std::string& icon_name)
 }
 
 MainWindow::~MainWindow() {
-    qApp->removeEventFilter(this);
+    removeEventFilter(this);
     runner_.set_file_callback(nullptr);
     runner_.set_progress_callback(nullptr);
     runner_.set_finished_callback(nullptr);

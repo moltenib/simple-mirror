@@ -14,18 +14,6 @@ if [[ ! -d "${DIST_DIR}" ]]; then
     exit 1
 fi
 
-STAMP_FILE="${DIST_DIR}/.collect-win-dlls.stamp"
-SCRIPT_PATH="${BASH_SOURCE[0]}"
-if [[ "${COLLECT_WIN_DLLS_FORCE:-0}" != "1" && -f "${STAMP_FILE}" ]]; then
-    modules_updated="$(
-        find "${DIST_DIR}" -type f \( -iname '*.exe' -o -iname '*.dll' \) -newer "${STAMP_FILE}" -print -quit
-    )"
-    if [[ -z "${modules_updated}" && "${SCRIPT_PATH}" -ot "${STAMP_FILE}" ]]; then
-        echo "collect-win-dlls: up to date, skipping full scan for ${DIST_DIR}"
-        exit 0
-    fi
-fi
-
 if ! command -v ldd >/dev/null 2>&1; then
     echo "collect-win-dlls: ldd not found" >&2
     exit 1
@@ -148,5 +136,4 @@ while ((queue_index < ${#queue[@]})); do
     fi
 done
 
-touch "${STAMP_FILE}"
 echo "collect-win-dlls: dependency copy complete for ${DIST_DIR}"

@@ -81,10 +81,21 @@ make windows-installer
 - `dist/simple-mirror.exe`
 - `simple-mirror-setup-<version>.exe` (from `APP_VERSION`, default derived from `git describe`)
 
-#### Run
+#### To run this program
 
-- Linux: `./simple-mirror`
-- Windows output: `dist/simple-mirror.exe`
+###### Linux
+
+```shell
+./simple-mirror
+```
+
+###### Windows
+
+```shell
+explorer dist
+```
+
+Double-click the output file: `simple-mirror.exe`.
 
 ## Technical information
 

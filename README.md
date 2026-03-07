@@ -43,7 +43,9 @@ To build the program locally, the dependencies below must be met:
 
 #### Windows build
 
-Compiling this program on Windows requires a MSYS2 MinGW64 environment. Dependencies must be installed as follows:
+Compiling this program on Windows requires a MSYS2 MinGW64 environment.
+
+###### Installing the dependencies
 
 ```shell
 pacman -S --needed \

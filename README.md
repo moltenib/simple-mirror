@@ -115,8 +115,7 @@ Double-click the output file: `simple-mirror.exe`.
 
 ### Translations
 
-Default language is English
-At startup, system locale is used if `resources/locales/<lang>/LC_MESSAGES/simple-mirror.qm` exists
+The default language is English. On start, the system locale is used if an associated `resources/locales/<lang>/LC_MESSAGES/simple-mirror.qm` exists.
 
 Included: `de`, `es`, `pt`, `it`, `nl`, `fr`, `zh_CN`, `ja`
 

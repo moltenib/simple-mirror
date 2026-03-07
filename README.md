@@ -17,7 +17,7 @@ Of those, step **2** can be skipped by holding _Shift_ and clicking "Combine";  
 
 ## Installation
 
-A Windows installer based on the current state of the main branch can be downloaded from the Github artifacts ([link](https://github.com/moltenib/simple-mirror/actions/workflows/windows.yml)).
+A Windows installer based on the current state of the main branch can be downloaded from the `windows-output` artifact uploaded to the latest pipeline run ([link](https://github.com/moltenib/simple-mirror/actions/workflows/windows.yml)).
 
 #### Unix-like systems (Linux, SteamOS)
 

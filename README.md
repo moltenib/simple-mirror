@@ -5,9 +5,7 @@
 This graphical program is meant to simplify `rsync` usage on both Windows and Linux. It is built upon the oficially supported Cygwin port of `rsync`, taking just as much time to mirror two directories as the well-known Linux utility. The following parameters are used:
 
 - Origin: the directory to be mirrored. It will not be altered by this program.
-- Destination: a directory to copy the differences into.
-
-Choosing the correct path is crucial; entering this parameter without proper care may have unintended consequences.
+- Destination: a directory to copy the differences into. Choosing the correct path is crucial; entering this parameter without proper care may have unintended consequences.
 
 As with `rsync`, the process is as follows:
 

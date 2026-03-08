@@ -72,13 +72,14 @@ MainWindow::MainWindow(const std::string& icon_name)
         "browse-destination",
         central);
 
-    const bool has_settings_file = std::filesystem::exists(settings::settings_file_path());
-    const settings::Settings last_settings = settings::load();
-    if (!last_settings.origin.empty()) {
-        origin_chooser_->setPath(QString::fromStdString(last_settings.origin));
+    Settings& settings = Settings::instance();
+    const bool has_settings_file = std::filesystem::exists(settings.file_path());
+    settings.load();
+    if (!settings.origin().empty()) {
+        origin_chooser_->setPath(QString::fromStdString(settings.origin()));
     }
-    if (!last_settings.destination.empty()) {
-        destination_chooser_->setPath(QString::fromStdString(last_settings.destination));
+    if (!settings.destination().empty()) {
+        destination_chooser_->setPath(QString::fromStdString(settings.destination()));
     }
 
     auto* origin_label = origin_chooser_->findChild<QLabel*>("origin-label");
@@ -166,9 +167,10 @@ MainWindow::MainWindow(const std::string& icon_name)
                     std::chrono::steady_clock::now() - sync_started_at_);
                 elapsed_text = duration_format::to_hh_mm_ss(elapsed);
             }
-            settings::save(settings::Settings{
-                origin_chooser_->path().toStdString(),
-                destination_chooser_->path().toStdString()});
+            Settings& settings = Settings::instance();
+            settings.set_origin(origin_chooser_->path().toStdString());
+            settings.set_destination(destination_chooser_->path().toStdString());
+            settings.save();
             progress_bar_->setValue(100);
             progress_bar_->setFormat(tr("Done") + " (" + elapsed_text + ")");
             set_status_text(tr("Mirroring complete."));

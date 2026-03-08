@@ -10,11 +10,7 @@
 #include <QJsonObject>
 #include <QString>
 
-namespace settings {
-
-namespace {
-
-std::filesystem::path user_home_dir() {
+std::filesystem::path Settings::user_home_dir() {
     const char* home = std::getenv("HOME");
 #ifdef _WIN32
     if (!home || !*home) {
@@ -27,7 +23,7 @@ std::filesystem::path user_home_dir() {
     return std::filesystem::current_path();
 }
 
-std::filesystem::path config_dir() {
+std::filesystem::path Settings::config_dir() {
 #ifdef _WIN32
     const char* local_app_data = std::getenv("LOCALAPPDATA");
     if (local_app_data && *local_app_data) {
@@ -49,28 +45,49 @@ std::filesystem::path config_dir() {
 #endif
 }
 
-std::filesystem::path settings_path() {
+std::filesystem::path Settings::settings_path() {
     return config_dir() / "settings.json";
 }
 
-}  // namespace
+Settings& Settings::instance() {
+    static Settings settings;
+    return settings;
+}
 
-std::string settings_file_path() {
+const std::string& Settings::origin() const {
+    return origin_;
+}
+
+const std::string& Settings::destination() const {
+    return destination_;
+}
+
+void Settings::set_origin(const std::string& origin) {
+    origin_ = origin;
+}
+
+void Settings::set_destination(const std::string& destination) {
+    destination_ = destination;
+}
+
+std::string Settings::file_path() const {
     return settings_path().string();
 }
 
-Settings load() {
-    Settings settings;
+bool Settings::load() {
+    origin_.clear();
+    destination_.clear();
+
     const std::filesystem::path path = settings_path();
     if (!std::filesystem::exists(path)) {
         std::error_code ec;
         std::filesystem::create_directories(path.parent_path(), ec);
-        return settings;
+        return false;
     }
 
     std::ifstream input(path);
     if (!input) {
-        return settings;
+        return false;
     }
 
     const std::string json_text{
@@ -82,16 +99,16 @@ Settings load() {
         QByteArray::fromStdString(json_text),
         &parse_error);
     if (parse_error.error != QJsonParseError::NoError || !document.isObject()) {
-        return settings;
+        return false;
     }
 
     const QJsonObject object = document.object();
-    settings.origin = object.value("origin").toString().toStdString();
-    settings.destination = object.value("destination").toString().toStdString();
-    return settings;
+    origin_ = object.value("origin").toString().toStdString();
+    destination_ = object.value("destination").toString().toStdString();
+    return true;
 }
 
-bool save(const Settings& settings) {
+bool Settings::save() const {
     const std::filesystem::path path = settings_path();
     std::error_code ec;
     std::filesystem::create_directories(path.parent_path(), ec);
@@ -100,8 +117,8 @@ bool save(const Settings& settings) {
     }
 
     QJsonObject object;
-    object.insert("origin", QString::fromStdString(settings.origin));
-    object.insert("destination", QString::fromStdString(settings.destination));
+    object.insert("origin", QString::fromStdString(origin_));
+    object.insert("destination", QString::fromStdString(destination_));
     const QJsonDocument document(object);
 
     std::ofstream output(path, std::ios::trunc);
@@ -112,5 +129,3 @@ bool save(const Settings& settings) {
     output << document.toJson(QJsonDocument::Indented).toStdString();
     return output.good();
 }
-
-}  // namespace settings

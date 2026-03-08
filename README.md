@@ -39,8 +39,6 @@ To build the program locally, the dependencies below must be met:
 - Qt6 Widgets;
 - `lrelease` (Qt Linguist tools).
 
-#### On Linux
-
 #### Unix-like systems (Linux, SteamOS)
 
 After cloning this repository, the build process on Linux only needs `make`. Ensure to have all dependencies.

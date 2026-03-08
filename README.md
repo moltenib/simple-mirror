@@ -17,13 +17,11 @@ Of those, step **2** can be skipped by holding _Shift_ and clicking "Combine"; r
 
 ## Installation
 
+### Windows
+
 A Windows installer based on the current state of the main branch can be downloaded from the `windows-output` artifact uploaded to the latest pipeline run ([link](https://github.com/moltenib/simple-mirror/actions/workflows/windows.yml)).
 
-#### Unix-like systems (Linux, SteamOS)
-
-After cloning this repository, the build process on Linux only needs `make`. Ensure to have all dependencies.
-
-##### Arch Linux and distributions with `pacman`
+### Arch Linux and distributions with `pacman`
 
 On Arch Linux and derivatives, the latest Git version can be downloaded from the Arch User Repository ([link](https://aur.archlinux.org/packages/simple-mirror-git)).
 
@@ -40,6 +38,12 @@ To build the program locally, the dependencies below must be met:
 - `pkg-config`;
 - Qt6 Widgets;
 - `lrelease` (Qt Linguist tools).
+
+#### On Linux
+
+#### Unix-like systems (Linux, SteamOS)
+
+After cloning this repository, the build process on Linux only needs `make`. Ensure to have all dependencies.
 
 #### Windows build
 

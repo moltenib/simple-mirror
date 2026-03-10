@@ -2,7 +2,7 @@
 
 ## Introduction
 
-This is a graphical back-up utility, intended to simplify usage of `rsync` on both Windows and Linux. It takes the following parameters:
+This is a graphical back-up utility, intended to simplify usage of `rsync` on both Windows and Linux. The following parameters are used:
 
 - Origin: the directory to be mirrored. It will not be altered by this program.
 - Destination: a directory to copy the differences into. Choosing the correct path is crucial; entering this parameter without care may have unintended consequences.
@@ -11,9 +11,9 @@ As with `rsync`, the process is as follows:
 
 1) The two directories are compared.
 2) Files that do not exist in the origin are **removed** to keep the destination up to date.
-3) Files in the destination with a different modification date from those in the origin folder are overwritten.
+3) Files in the destination with a different modification date from those in the origin folder are copied or overwritten.
 
-Of those, step **2** can be skipped by holding _Shift_ and clicking "Combine"; rather than create a mirror of the origin, this will merge the contents of the two directories into the destination.
+Of these, step **2** can be skipped by holding _Shift_ and clicking "Combine"; rather than create a mirror of the origin, this will merge the contents of the two directories into the destination.
 
 ## Installation
 

@@ -80,12 +80,7 @@ make windows-deploy
 make windows-installer
 ```
 
-###### Outputs
-
-- `dist/simple-mirror.exe`
-- `simple-mirror-setup-<version>.exe` (from `APP_VERSION`, default derived from `git describe`)
-
-#### To run this program
+###### Output
 
 ###### Linux
 
@@ -95,11 +90,16 @@ make windows-installer
 
 ###### Windows
 
+- Installer: `simple-mirror-setup-<version>.exe` (from `APP_VERSION`, default derived from `git describe`).
+- Executable: `dist/simple-mirror.exe`.
+
+Please note that the internally rendered `/cygwin` path is only available outside of MSYS2. For the program to work, it must be opened from `explorer.exe`:
+
 ```shell
 explorer dist
 ```
 
-Double-click the output file: `simple-mirror.exe`.
+Then double-click the output file: `simple-mirror.exe`.
 
 ## Technical information
 

@@ -80,15 +80,15 @@ make windows-deploy
 make windows-installer
 ```
 
-###### Output
+### Output
 
-###### Linux
+#### Linux
 
 ```shell
 ./simple-mirror
 ```
 
-###### Windows
+#### Windows
 
 - Installer: `simple-mirror-setup-<version>.exe` (from `APP_VERSION`, default derived from `git describe`).
 - Executable: `dist/simple-mirror.exe`.

@@ -105,6 +105,10 @@ ifeq ($(IS_WINDOWS),1)
 	if [ -f "$(MSYS2_RSYNC_EXE)" ]; then \
 		mkdir -p "$(WIN_DEPLOY_DIR)/runtime/msys2/usr/bin"; \
 		cp -f "$(MSYS2_RSYNC_EXE)" "$(WIN_DEPLOY_DIR)/runtime/msys2/usr/bin/"; \
+		for dll in "$$(dirname "$(MSYS2_RSYNC_EXE)")"/*.dll; do \
+			[ -f "$$dll" ] || continue; \
+			cp -f "$$dll" "$(WIN_DEPLOY_DIR)/runtime/msys2/usr/bin/"; \
+		done; \
 	fi; \
 	if command -v "$(WINDEPLOYQT)" >/dev/null 2>&1; then \
 		"$(WINDEPLOYQT)" --release --no-translations --no-quick-import "$(BIN)"; \

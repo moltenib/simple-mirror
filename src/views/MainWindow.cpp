@@ -157,9 +157,15 @@ MainWindow::MainWindow(const std::string& icon_name)
         if (progress_animation_) {
             progress_animation_->stop();
         }
-        if (stop_requested_ || signaled) {
+        if (stop_requested_) {
             progress_bar_->setFormat(tr("Stopped"));
             set_status_text(tr("The program has stopped. Press the button to resume."));
+        } else if (signaled) {
+            progress_bar_->setFormat(tr("Crashed"));
+            set_status_text(tr("The synchronization process crashed."));
+            show_error(
+                tr("The synchronization process crashed. On Windows this usually means the bundled rsync runtime is incomplete or stale."),
+                tr("Synchronization crashed"));
         } else if (exit_code == 0) {
             QString elapsed_text = duration_format::to_hh_mm_ss(std::chrono::milliseconds::zero());
             if (sync_timing_active_) {

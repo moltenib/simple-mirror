@@ -94,6 +94,16 @@ LangString RUN_APP_TEXT ${LANG_FRENCH} "Lancer Miroir simple"
 LangString RUN_APP_TEXT ${LANG_JAPANESE} "シンプルミラーを実行"
 LangString RUN_APP_TEXT ${LANG_SIMPCHINESE} "运行简易镜像"
 
+LangString UNINSTALL_LINK_TEXT ${LANG_ENGLISH} "Uninstall Simple Mirror"
+LangString UNINSTALL_LINK_TEXT ${LANG_GERMAN} "Einfacher Spiegel deinstallieren"
+LangString UNINSTALL_LINK_TEXT ${LANG_SPANISH} "Desinstalar Espejo simple"
+LangString UNINSTALL_LINK_TEXT ${LANG_PORTUGUESE} "Desinstalar Espelho simples"
+LangString UNINSTALL_LINK_TEXT ${LANG_ITALIAN} "Disinstalla Specchio semplice"
+LangString UNINSTALL_LINK_TEXT ${LANG_DUTCH} "Eenvoudige spiegel verwijderen"
+LangString UNINSTALL_LINK_TEXT ${LANG_FRENCH} "Desinstaller Miroir simple"
+LangString UNINSTALL_LINK_TEXT ${LANG_JAPANESE} "シンプルミラーをアンインストール"
+LangString UNINSTALL_LINK_TEXT ${LANG_SIMPCHINESE} "卸载简易镜像"
+
 Function .onInit
     !insertmacro MUI_LANGDLL_DISPLAY
     ${If} ${RunningX64}
@@ -129,20 +139,59 @@ Section "Install" SecInstall
     WriteRegDWORD HKLM "${UNINSTALL_KEY}" "NoModify" 1
     WriteRegDWORD HKLM "${UNINSTALL_KEY}" "NoRepair" 1
 
-    CreateDirectory "$SMPROGRAMS\Simple Mirror"
+    ReadRegStr $0 HKLM "Software\Simple Mirror" "StartMenuFolderName"
+    StrCmp $0 "" 0 +2
+    StrCpy $0 "Simple Mirror"
+    ReadRegStr $1 HKLM "Software\Simple Mirror" "AppShortcutName"
+    StrCmp $1 "" 0 +2
+    StrCpy $1 "Simple Mirror"
+    ReadRegStr $2 HKLM "Software\Simple Mirror" "UninstallShortcutName"
+    StrCmp $2 "" 0 +2
+    StrCpy $2 "Uninstall Simple Mirror"
+
+    Delete "$DESKTOP\$1.lnk"
+    Delete "$SMPROGRAMS\$0\$1.lnk"
+    Delete "$SMPROGRAMS\$0\$2.lnk"
+    RMDir "$SMPROGRAMS\$0"
+
+    Delete "$DESKTOP\Simple Mirror.lnk"
+    Delete "$SMPROGRAMS\Simple Mirror\Simple Mirror.lnk"
+    Delete "$SMPROGRAMS\Simple Mirror\Uninstall Simple Mirror.lnk"
+    RMDir "$SMPROGRAMS\Simple Mirror"
+
+    WriteRegStr HKLM "Software\Simple Mirror" "StartMenuFolderName" "$(APP_NAME_DISPLAY)"
+    WriteRegStr HKLM "Software\Simple Mirror" "AppShortcutName" "$(APP_NAME_DISPLAY)"
+    WriteRegStr HKLM "Software\Simple Mirror" "UninstallShortcutName" "$(UNINSTALL_LINK_TEXT)"
+
+    CreateDirectory "$SMPROGRAMS\$(APP_NAME_DISPLAY)"
     IfFileExists "$INSTDIR\resources\icons\icon.ico" 0 +3
-    CreateShortcut "$SMPROGRAMS\Simple Mirror\Simple Mirror.lnk" "$INSTDIR\${APP_EXE}" "" "$INSTDIR\resources\icons\icon.ico" 0
+    CreateShortcut "$SMPROGRAMS\$(APP_NAME_DISPLAY)\$(APP_NAME_DISPLAY).lnk" "$INSTDIR\${APP_EXE}" "" "$INSTDIR\resources\icons\icon.ico" 0
     Goto +2
-    CreateShortcut "$SMPROGRAMS\Simple Mirror\Simple Mirror.lnk" "$INSTDIR\${APP_EXE}"
-    CreateShortcut "$SMPROGRAMS\Simple Mirror\Uninstall Simple Mirror.lnk" "$INSTDIR\Uninstall.exe"
+    CreateShortcut "$SMPROGRAMS\$(APP_NAME_DISPLAY)\$(APP_NAME_DISPLAY).lnk" "$INSTDIR\${APP_EXE}"
+    CreateShortcut "$SMPROGRAMS\$(APP_NAME_DISPLAY)\$(UNINSTALL_LINK_TEXT).lnk" "$INSTDIR\Uninstall.exe"
     IfFileExists "$INSTDIR\resources\icons\icon.ico" 0 +3
-    CreateShortcut "$DESKTOP\Simple Mirror.lnk" "$INSTDIR\${APP_EXE}" "" "$INSTDIR\resources\icons\icon.ico" 0
+    CreateShortcut "$DESKTOP\$(APP_NAME_DISPLAY).lnk" "$INSTDIR\${APP_EXE}" "" "$INSTDIR\resources\icons\icon.ico" 0
     Goto +2
-    CreateShortcut "$DESKTOP\Simple Mirror.lnk" "$INSTDIR\${APP_EXE}"
+    CreateShortcut "$DESKTOP\$(APP_NAME_DISPLAY).lnk" "$INSTDIR\${APP_EXE}"
 SectionEnd
 
 Section "Uninstall"
     SetShellVarContext all
+    ReadRegStr $0 HKLM "Software\Simple Mirror" "StartMenuFolderName"
+    StrCmp $0 "" 0 +2
+    StrCpy $0 "Simple Mirror"
+    ReadRegStr $1 HKLM "Software\Simple Mirror" "AppShortcutName"
+    StrCmp $1 "" 0 +2
+    StrCpy $1 "Simple Mirror"
+    ReadRegStr $2 HKLM "Software\Simple Mirror" "UninstallShortcutName"
+    StrCmp $2 "" 0 +2
+    StrCpy $2 "Uninstall Simple Mirror"
+
+    Delete "$DESKTOP\$1.lnk"
+    Delete "$SMPROGRAMS\$0\$1.lnk"
+    Delete "$SMPROGRAMS\$0\$2.lnk"
+    RMDir "$SMPROGRAMS\$0"
+
     Delete "$DESKTOP\Simple Mirror.lnk"
     Delete "$SMPROGRAMS\Simple Mirror\Simple Mirror.lnk"
     Delete "$SMPROGRAMS\Simple Mirror\Uninstall Simple Mirror.lnk"

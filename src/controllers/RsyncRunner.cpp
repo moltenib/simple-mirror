@@ -61,7 +61,6 @@ bool RsyncRunner::ensure_rsync_available(std::string& error) {
 bool RsyncRunner::start(
     const std::string& origin,
     const std::string& destination,
-    bool delete_extraneous,
     std::string& error) {
     if (running_) {
         error = QCoreApplication::translate(
@@ -77,11 +76,8 @@ bool RsyncRunner::start(
 
     QStringList args;
     args << "-avh"
-         << "--info=progress2";
-    if (delete_extraneous) {
-        args << "--delete";
-    }
-    args
+         << "--info=progress2"
+         << "--delete"
          << QString::fromStdString(normalize_rsync_path(origin))
          << QString::fromStdString(normalize_rsync_path(destination));
 

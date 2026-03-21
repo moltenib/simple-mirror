@@ -27,7 +27,6 @@ public:
     bool start(
         const std::string& origin,
         const std::string& destination,
-        bool delete_extraneous,
         std::string& error);
     void stop();
     bool stop_and_wait(int timeout_ms = 2500);

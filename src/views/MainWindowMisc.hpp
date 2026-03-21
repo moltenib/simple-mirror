@@ -21,17 +21,15 @@ private:
 class SyncButton : public QPushButton {
 public:
     explicit SyncButton(QWidget* parent = nullptr);
-    void setRunningState(bool running, bool combine_mode);
+    void setRunningState(bool running);
 
 private:
     void recomputeMinimumWidth();
     void updateVisualState();
 
     QString synchronize_text_;
-    QString combine_text_;
     QString stop_text_;
     bool running_;
-    bool combine_mode_;
 };
 
 class ProgressBarWidget : public QProgressBar {

@@ -66,10 +66,6 @@ By continuing, you confirm that the selected paths are correct, and that you acc
         <translation>同期</translation>
     </message>
     <message>
-        <source>Combine</source>
-        <translation>結合</translation>
-    </message>
-    <message>
         <source>Stop</source>
         <translation>停止</translation>
     </message>
@@ -153,6 +149,22 @@ By continuing, you confirm that the selected paths are correct, and that you acc
         <source>Destination folder does not exist: %1</source>
         <translation>コピー先フォルダーが存在しません: %1</translation>
     </message>
+    <message>
+        <source>Crashed</source>
+        <translation>異常終了</translation>
+    </message>
+    <message>
+        <source>The synchronization process crashed.</source>
+        <translation>同期プロセスが異常終了しました。</translation>
+    </message>
+    <message>
+        <source>The synchronization process crashed. On Windows this usually means the bundled rsync runtime is incomplete or stale.</source>
+        <translation>同期プロセスが異常終了しました。Windows では通常、同梱されている rsync ランタイムが不完全か古くなっていることを意味します。</translation>
+    </message>
+    <message>
+        <source>Synchronization crashed</source>
+        <translation>同期が異常終了しました</translation>
+    </message>
 </context>
 <context>
     <name>RsyncRunner</name>
@@ -188,8 +200,8 @@ By continuing, you confirm that the selected paths are correct, and that you acc
         <translation>ようこそ！</translation>
     </message>
     <message>
-        <source>&lt;p&gt;It appears that no backups have been performed with this installation yet. How it works:&lt;/p&gt;&lt;p&gt;&lt;span class=&apos;accent&apos;&gt;1)&lt;/span&gt; Choose an origin. This is the folder to be backed up. It will not be modified by this program.&lt;/p&gt;&lt;p&gt;&lt;span class=&apos;accent&apos;&gt;2)&lt;/span&gt; Insert a back-up medium, like an external drive. This will be the destination.&lt;/p&gt;&lt;p&gt;&lt;span class=&apos;accent&apos;&gt;3)&lt;/span&gt; Press &lt;span class=&apos;accent&apos;&gt;&amp;quot;Synchronize&amp;quot;&lt;/span&gt; to turn the destination into a mirror of the origin. This is irreversible. Use with care!&lt;/p&gt;&lt;ul style=&apos;margin-top: 0px;&apos;&gt;&lt;li&gt;The two folders are compared.&lt;/li&gt;&lt;li&gt;Files in the destination that do not exist in the origin will be &lt;span style=&apos;color: #b51616; font-weight: 600;&apos;&gt;permanently deleted&lt;/span&gt;.&lt;/li&gt;&lt;li&gt;Files in the origin that are missing in the destination are copied from the origin.&lt;/li&gt;&lt;/ul&gt;&lt;p&gt;&lt;span class=&apos;accent&apos;&gt;Tip&lt;/span&gt;: Holding Shift will turn &amp;quot;Synchronize&amp;quot; into &lt;span class=&apos;accent&apos;&gt;&amp;quot;Combine&amp;quot;&lt;/span&gt;; the contents of the destination are kept and merged with the origin&apos;s. Use this option if it fits your goals.&lt;br&gt;&lt;br&gt;This message will disappear after the first run.&lt;/p&gt;</source>
-        <translation>&lt;p&gt;このインストールでは、まだバックアップが一度も実行されていないようです。使い方は次のとおりです。&lt;/p&gt;&lt;p&gt;&lt;span class=&apos;accent&apos;&gt;1)&lt;/span&gt; コピー元を選択します。これはバックアップ対象のフォルダーで、このプログラムが変更することはありません。&lt;/p&gt;&lt;p&gt;&lt;span class=&apos;accent&apos;&gt;2)&lt;/span&gt; 外付けドライブなどのバックアップ媒体を接続します。これがコピー先になります。&lt;/p&gt;&lt;p&gt;&lt;span class=&apos;accent&apos;&gt;3)&lt;/span&gt; &lt;span class=&apos;accent&apos;&gt;「同期」&lt;/span&gt; を押すと、コピー先をコピー元のミラーにします。この操作は元に戻せません。注意してご利用ください。&lt;/p&gt;&lt;ul style=&apos;margin-top: 0px;&apos;&gt;&lt;li&gt;2つのフォルダーを比較します。&lt;/li&gt;&lt;li&gt;コピー先にありコピー元にないファイルは &lt;span style=&apos;color: #b51616; font-weight: 600;&apos;&gt;完全に削除されます&lt;/span&gt;.&lt;/li&gt;&lt;li&gt;コピー元にありコピー先にないファイルは、コピー元からコピーされます。&lt;/li&gt;&lt;/ul&gt;&lt;p&gt;&lt;span class=&apos;accent&apos;&gt;ヒント&lt;/span&gt;: Shift キーを押しながら操作すると 「同期」 が &lt;span class=&apos;accent&apos;&gt;「結合」&lt;/span&gt; に変わり、コピー先の内容を保持したままコピー元の内容と統合します。目的に合う場合にご利用ください。&lt;br&gt;&lt;br&gt;このメッセージは初回実行後に表示されなくなります。&lt;/p&gt;</translation>
+        <source>&lt;p&gt;It appears that no backups have been performed with this installation yet. How it works:&lt;/p&gt;&lt;p&gt;&lt;span class=&apos;accent&apos;&gt;1)&lt;/span&gt; Choose an origin. This is the folder to be backed up. It will not be modified by this program.&lt;/p&gt;&lt;p&gt;&lt;span class=&apos;accent&apos;&gt;2)&lt;/span&gt; Insert a back-up medium, like an external drive. This will be the destination.&lt;/p&gt;&lt;p&gt;&lt;span class=&apos;accent&apos;&gt;3)&lt;/span&gt; Press &lt;span class=&apos;accent&apos;&gt;&amp;quot;Synchronize&amp;quot;&lt;/span&gt; to turn the destination into a mirror of the origin. This is irreversible. Use with care!&lt;/p&gt;&lt;ul style=&apos;margin-top: 0px;&apos;&gt;&lt;li&gt;The two folders are compared.&lt;/li&gt;&lt;li&gt;Files in the destination that do not exist in the origin will be &lt;span style=&apos;color: #b51616; font-weight: 600;&apos;&gt;permanently deleted&lt;/span&gt;.&lt;/li&gt;&lt;li&gt;Files in the origin that are missing in the destination are copied from the origin.&lt;/li&gt;&lt;/ul&gt;&lt;p&gt;This message will disappear after the first run.&lt;/p&gt;</source>
+        <translation>&lt;p&gt;このインストールでは、まだバックアップが一度も実行されていないようです。使い方は次のとおりです。&lt;/p&gt;&lt;p&gt;&lt;span class=&apos;accent&apos;&gt;1)&lt;/span&gt; コピー元を選択します。これはバックアップ対象のフォルダーで、このプログラムが変更することはありません。&lt;/p&gt;&lt;p&gt;&lt;span class=&apos;accent&apos;&gt;2)&lt;/span&gt; 外付けドライブなどのバックアップ媒体を接続します。これがコピー先になります。&lt;/p&gt;&lt;p&gt;&lt;span class=&apos;accent&apos;&gt;3)&lt;/span&gt; &lt;span class=&apos;accent&apos;&gt;「同期」&lt;/span&gt; を押すと、コピー先をコピー元のミラーにします。この操作は元に戻せません。注意してご利用ください。&lt;/p&gt;&lt;ul style=&apos;margin-top: 0px;&apos;&gt;&lt;li&gt;2つのフォルダーを比較します。&lt;/li&gt;&lt;li&gt;コピー先にありコピー元にないファイルは &lt;span style=&apos;color: #b51616; font-weight: 600;&apos;&gt;完全に削除されます&lt;/span&gt;。&lt;/li&gt;&lt;li&gt;コピー元にありコピー先にないファイルは、コピー元からコピーされます。&lt;/li&gt;&lt;/ul&gt;&lt;p&gt;このメッセージは初回実行後に表示されなくなります。&lt;/p&gt;</translation>
     </message>
 </context>
 </TS>

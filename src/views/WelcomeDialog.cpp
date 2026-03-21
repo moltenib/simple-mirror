@@ -44,10 +44,7 @@ void WelcomeDialog::show(QWidget* parent) {
         "font-weight: 600;'>permanently deleted</span>.</li>"
         "<li>Files in the origin that are missing in the destination are copied from the origin.</li>"
         "</ul>"
-        "<p><span class='accent'>Tip</span>: Holding Shift will turn "
-        "&quot;Synchronize&quot; into <span class='accent'>&quot;Combine&quot;</span>; "
-        "the contents of the destination are kept and merged with the origin's. Use this option if it fits your "
-        "goals.<br><br>This message will disappear after the first run.</p>"));
+        "<p>This message will disappear after the first run.</p>"));
     if (QGridLayout* layout = qobject_cast<QGridLayout*>(dialog.layout())) {
         auto* width_spacer = new QSpacerItem(650, 0, QSizePolicy::Minimum, QSizePolicy::Expanding);
         layout->addItem(width_spacer, layout->rowCount(), 0, 1, layout->columnCount());

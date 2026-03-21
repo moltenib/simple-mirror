@@ -66,10 +66,6 @@ En continuant, vous confirmez que les chemins sélectionnés sont corrects et qu
         <translation>Synchroniser</translation>
     </message>
     <message>
-        <source>Combine</source>
-        <translation>Fusionner</translation>
-    </message>
-    <message>
         <source>Stop</source>
         <translation>Arrêter</translation>
     </message>
@@ -153,6 +149,22 @@ En continuant, vous confirmez que les chemins sélectionnés sont corrects et qu
         <source>Destination folder does not exist: %1</source>
         <translation>Le dossier de destination n&apos;existe pas : %1</translation>
     </message>
+    <message>
+        <source>Crashed</source>
+        <translation>Planté</translation>
+    </message>
+    <message>
+        <source>The synchronization process crashed.</source>
+        <translation>Le processus de synchronisation a planté.</translation>
+    </message>
+    <message>
+        <source>The synchronization process crashed. On Windows this usually means the bundled rsync runtime is incomplete or stale.</source>
+        <translation>Le processus de synchronisation a planté. Sous Windows, cela signifie généralement que l&apos;environnement d&apos;exécution rsync fourni est incomplet ou obsolète.</translation>
+    </message>
+    <message>
+        <source>Synchronization crashed</source>
+        <translation>Synchronisation plantée</translation>
+    </message>
 </context>
 <context>
     <name>RsyncRunner</name>
@@ -188,8 +200,8 @@ En continuant, vous confirmez que les chemins sélectionnés sont corrects et qu
         <translation>Bienvenue !</translation>
     </message>
     <message>
-        <source>&lt;p&gt;It appears that no backups have been performed with this installation yet. How it works:&lt;/p&gt;&lt;p&gt;&lt;span class=&apos;accent&apos;&gt;1)&lt;/span&gt; Choose an origin. This is the folder to be backed up. It will not be modified by this program.&lt;/p&gt;&lt;p&gt;&lt;span class=&apos;accent&apos;&gt;2)&lt;/span&gt; Insert a back-up medium, like an external drive. This will be the destination.&lt;/p&gt;&lt;p&gt;&lt;span class=&apos;accent&apos;&gt;3)&lt;/span&gt; Press &lt;span class=&apos;accent&apos;&gt;&amp;quot;Synchronize&amp;quot;&lt;/span&gt; to turn the destination into a mirror of the origin. This is irreversible. Use with care!&lt;/p&gt;&lt;ul style=&apos;margin-top: 0px;&apos;&gt;&lt;li&gt;The two folders are compared.&lt;/li&gt;&lt;li&gt;Files in the destination that do not exist in the origin will be &lt;span style=&apos;color: #b51616; font-weight: 600;&apos;&gt;permanently deleted&lt;/span&gt;.&lt;/li&gt;&lt;li&gt;Files in the origin that are missing in the destination are copied from the origin.&lt;/li&gt;&lt;/ul&gt;&lt;p&gt;&lt;span class=&apos;accent&apos;&gt;Tip&lt;/span&gt;: Holding Shift will turn &amp;quot;Synchronize&amp;quot; into &lt;span class=&apos;accent&apos;&gt;&amp;quot;Combine&amp;quot;&lt;/span&gt;; the contents of the destination are kept and merged with the origin&apos;s. Use this option if it fits your goals.&lt;br&gt;&lt;br&gt;This message will disappear after the first run.&lt;/p&gt;</source>
-        <translation>&lt;p&gt;Il semble qu&apos;aucune sauvegarde n&apos;ait encore été effectuée avec cette installation. Voici le fonctionnement :&lt;/p&gt;&lt;p&gt;&lt;span class=&apos;accent&apos;&gt;1)&lt;/span&gt; Choisissez une source. C&apos;est le dossier à sauvegarder. Ce dossier ne sera pas modifié par ce programme.&lt;/p&gt;&lt;p&gt;&lt;span class=&apos;accent&apos;&gt;2)&lt;/span&gt; Branchez un support de sauvegarde, par exemple un disque externe. Ce sera la destination.&lt;/p&gt;&lt;p&gt;&lt;span class=&apos;accent&apos;&gt;3)&lt;/span&gt; Cliquez sur &lt;span class=&apos;accent&apos;&gt;«Synchroniser»&lt;/span&gt; pour transformer la destination en miroir de la source. Cette action est irréversible. Utilisez-la avec prudence.&lt;/p&gt;&lt;ul style=&apos;margin-top: 0px;&apos;&gt;&lt;li&gt;Les deux dossiers sont comparés.&lt;/li&gt;&lt;li&gt;Les fichiers du dossier de destination qui n&apos;existent pas dans le dossier source sont &lt;span style=&apos;color: #b51616; font-weight: 600;&apos;&gt;supprimés définitivement&lt;/span&gt;.&lt;/li&gt;&lt;li&gt;Les fichiers du dossier source absents du dossier de destination sont copiés depuis le dossier source.&lt;/li&gt;&lt;/ul&gt;&lt;p&gt;&lt;span class=&apos;accent&apos;&gt;Astuce&lt;/span&gt; : en maintenant la touche Maj enfoncée, «Synchroniser» devient &lt;span class=&apos;accent&apos;&gt;«Fusionner»&lt;/span&gt; ; le contenu de la destination est conservé et fusionné avec celui de la source. Utilisez cette option si elle correspond à votre objectif.&lt;br&gt;&lt;br&gt;Ce message disparaîtra après la première exécution.&lt;/p&gt;</translation>
+        <source>&lt;p&gt;It appears that no backups have been performed with this installation yet. How it works:&lt;/p&gt;&lt;p&gt;&lt;span class=&apos;accent&apos;&gt;1)&lt;/span&gt; Choose an origin. This is the folder to be backed up. It will not be modified by this program.&lt;/p&gt;&lt;p&gt;&lt;span class=&apos;accent&apos;&gt;2)&lt;/span&gt; Insert a back-up medium, like an external drive. This will be the destination.&lt;/p&gt;&lt;p&gt;&lt;span class=&apos;accent&apos;&gt;3)&lt;/span&gt; Press &lt;span class=&apos;accent&apos;&gt;&amp;quot;Synchronize&amp;quot;&lt;/span&gt; to turn the destination into a mirror of the origin. This is irreversible. Use with care!&lt;/p&gt;&lt;ul style=&apos;margin-top: 0px;&apos;&gt;&lt;li&gt;The two folders are compared.&lt;/li&gt;&lt;li&gt;Files in the destination that do not exist in the origin will be &lt;span style=&apos;color: #b51616; font-weight: 600;&apos;&gt;permanently deleted&lt;/span&gt;.&lt;/li&gt;&lt;li&gt;Files in the origin that are missing in the destination are copied from the origin.&lt;/li&gt;&lt;/ul&gt;&lt;p&gt;This message will disappear after the first run.&lt;/p&gt;</source>
+        <translation>&lt;p&gt;Il semble qu&apos;aucune sauvegarde n&apos;ait encore été effectuée avec cette installation. Voici comment cela fonctionne :&lt;/p&gt;&lt;p&gt;&lt;span class=&apos;accent&apos;&gt;1)&lt;/span&gt; Choisissez une source. C&apos;est le dossier à sauvegarder. Ce programme ne le modifiera pas.&lt;/p&gt;&lt;p&gt;&lt;span class=&apos;accent&apos;&gt;2)&lt;/span&gt; Branchez un support de sauvegarde, par exemple un disque externe. Ce sera la destination.&lt;/p&gt;&lt;p&gt;&lt;span class=&apos;accent&apos;&gt;3)&lt;/span&gt; Appuyez sur &lt;span class=&apos;accent&apos;&gt;« Synchroniser »&lt;/span&gt; pour transformer la destination en miroir de la source. Cette action est irréversible. Utilisez-la avec prudence.&lt;/p&gt;&lt;ul style=&apos;margin-top: 0px;&apos;&gt;&lt;li&gt;Les deux dossiers sont comparés.&lt;/li&gt;&lt;li&gt;Les fichiers présents dans la destination mais absents de la source seront &lt;span style=&apos;color: #b51616; font-weight: 600;&apos;&gt;supprimés définitivement&lt;/span&gt;.&lt;/li&gt;&lt;li&gt;Les fichiers présents dans la source mais absents de la destination sont copiés depuis la source.&lt;/li&gt;&lt;/ul&gt;&lt;p&gt;Ce message disparaîtra après la première exécution.&lt;/p&gt;</translation>
     </message>
 </context>
 </TS>

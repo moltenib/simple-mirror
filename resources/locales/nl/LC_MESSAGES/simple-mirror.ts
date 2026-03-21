@@ -66,10 +66,6 @@ Door door te gaan, bevestigt u dat de geselecteerde paden correct zijn en dat u 
         <translation>Synchroniseren</translation>
     </message>
     <message>
-        <source>Combine</source>
-        <translation>Combineren</translation>
-    </message>
-    <message>
         <source>Stop</source>
         <translation>Stoppen</translation>
     </message>
@@ -153,6 +149,22 @@ Door door te gaan, bevestigt u dat de geselecteerde paden correct zijn en dat u 
         <source>Destination folder does not exist: %1</source>
         <translation>Doelmap bestaat niet: %1</translation>
     </message>
+    <message>
+        <source>Crashed</source>
+        <translation>Vastgelopen</translation>
+    </message>
+    <message>
+        <source>The synchronization process crashed.</source>
+        <translation>Het synchronisatieproces is vastgelopen.</translation>
+    </message>
+    <message>
+        <source>The synchronization process crashed. On Windows this usually means the bundled rsync runtime is incomplete or stale.</source>
+        <translation>Het synchronisatieproces is vastgelopen. In Windows betekent dit meestal dat de meegeleverde rsync-runtime onvolledig of verouderd is.</translation>
+    </message>
+    <message>
+        <source>Synchronization crashed</source>
+        <translation>Synchronisatie vastgelopen</translation>
+    </message>
 </context>
 <context>
     <name>RsyncRunner</name>
@@ -188,8 +200,8 @@ Door door te gaan, bevestigt u dat de geselecteerde paden correct zijn en dat u 
         <translation>Welkom!</translation>
     </message>
     <message>
-        <source>&lt;p&gt;It appears that no backups have been performed with this installation yet. How it works:&lt;/p&gt;&lt;p&gt;&lt;span class=&apos;accent&apos;&gt;1)&lt;/span&gt; Choose an origin. This is the folder to be backed up. It will not be modified by this program.&lt;/p&gt;&lt;p&gt;&lt;span class=&apos;accent&apos;&gt;2)&lt;/span&gt; Insert a back-up medium, like an external drive. This will be the destination.&lt;/p&gt;&lt;p&gt;&lt;span class=&apos;accent&apos;&gt;3)&lt;/span&gt; Press &lt;span class=&apos;accent&apos;&gt;&amp;quot;Synchronize&amp;quot;&lt;/span&gt; to turn the destination into a mirror of the origin. This is irreversible. Use with care!&lt;/p&gt;&lt;ul style=&apos;margin-top: 0px;&apos;&gt;&lt;li&gt;The two folders are compared.&lt;/li&gt;&lt;li&gt;Files in the destination that do not exist in the origin will be &lt;span style=&apos;color: #b51616; font-weight: 600;&apos;&gt;permanently deleted&lt;/span&gt;.&lt;/li&gt;&lt;li&gt;Files in the origin that are missing in the destination are copied from the origin.&lt;/li&gt;&lt;/ul&gt;&lt;p&gt;&lt;span class=&apos;accent&apos;&gt;Tip&lt;/span&gt;: Holding Shift will turn &amp;quot;Synchronize&amp;quot; into &lt;span class=&apos;accent&apos;&gt;&amp;quot;Combine&amp;quot;&lt;/span&gt;; the contents of the destination are kept and merged with the origin&apos;s. Use this option if it fits your goals.&lt;br&gt;&lt;br&gt;This message will disappear after the first run.&lt;/p&gt;</source>
-        <translation>&lt;p&gt;Het lijkt erop dat er met deze installatie nog geen back-ups zijn uitgevoerd. Zo werkt het:&lt;/p&gt;&lt;p&gt;&lt;span class=&apos;accent&apos;&gt;1)&lt;/span&gt; Kies een bron. Dit is de map die wordt geback-upt. Deze map wordt door dit programma niet gewijzigd.&lt;/p&gt;&lt;p&gt;&lt;span class=&apos;accent&apos;&gt;2)&lt;/span&gt; Sluit een back-upmedium aan, zoals een externe schijf. Dat wordt de bestemming.&lt;/p&gt;&lt;p&gt;&lt;span class=&apos;accent&apos;&gt;3)&lt;/span&gt; Druk op &lt;span class=&apos;accent&apos;&gt;‘Synchroniseren’&lt;/span&gt; om van de bestemming een spiegel van de bron te maken. Dit is onomkeerbaar. Gebruik dit met zorg.&lt;/p&gt;&lt;ul style=&apos;margin-top: 0px;&apos;&gt;&lt;li&gt;De twee mappen worden vergeleken.&lt;/li&gt;&lt;li&gt;Bestanden in de bestemming die niet in de bron bestaan, worden &lt;span style=&apos;color: #b51616; font-weight: 600;&apos;&gt;permanent verwijderd&lt;/span&gt;.&lt;/li&gt;&lt;li&gt;Bestanden in de bron die in de bestemming ontbreken, worden vanuit de bron gekopieerd.&lt;/li&gt;&lt;/ul&gt;&lt;p&gt;&lt;span class=&apos;accent&apos;&gt;Tip&lt;/span&gt;: Houd Shift ingedrukt om ‘Synchroniseren’ te veranderen in &lt;span class=&apos;accent&apos;&gt;‘Combineren’&lt;/span&gt;; de inhoud van de bestemming blijft behouden en wordt samengevoegd met die van de bron. Gebruik deze optie als die bij uw doel past.&lt;br&gt;&lt;br&gt;Dit bericht verdwijnt na de eerste uitvoering.&lt;/p&gt;</translation>
+        <source>&lt;p&gt;It appears that no backups have been performed with this installation yet. How it works:&lt;/p&gt;&lt;p&gt;&lt;span class=&apos;accent&apos;&gt;1)&lt;/span&gt; Choose an origin. This is the folder to be backed up. It will not be modified by this program.&lt;/p&gt;&lt;p&gt;&lt;span class=&apos;accent&apos;&gt;2)&lt;/span&gt; Insert a back-up medium, like an external drive. This will be the destination.&lt;/p&gt;&lt;p&gt;&lt;span class=&apos;accent&apos;&gt;3)&lt;/span&gt; Press &lt;span class=&apos;accent&apos;&gt;&amp;quot;Synchronize&amp;quot;&lt;/span&gt; to turn the destination into a mirror of the origin. This is irreversible. Use with care!&lt;/p&gt;&lt;ul style=&apos;margin-top: 0px;&apos;&gt;&lt;li&gt;The two folders are compared.&lt;/li&gt;&lt;li&gt;Files in the destination that do not exist in the origin will be &lt;span style=&apos;color: #b51616; font-weight: 600;&apos;&gt;permanently deleted&lt;/span&gt;.&lt;/li&gt;&lt;li&gt;Files in the origin that are missing in the destination are copied from the origin.&lt;/li&gt;&lt;/ul&gt;&lt;p&gt;This message will disappear after the first run.&lt;/p&gt;</source>
+        <translation>&lt;p&gt;Het lijkt erop dat er met deze installatie nog geen back-ups zijn uitgevoerd. Zo werkt het:&lt;/p&gt;&lt;p&gt;&lt;span class=&apos;accent&apos;&gt;1)&lt;/span&gt; Kies een bron. Dit is de map die wordt geback-upt. Deze map wordt door dit programma niet gewijzigd.&lt;/p&gt;&lt;p&gt;&lt;span class=&apos;accent&apos;&gt;2)&lt;/span&gt; Sluit een back-upmedium aan, zoals een externe schijf. Dat wordt de bestemming.&lt;/p&gt;&lt;p&gt;&lt;span class=&apos;accent&apos;&gt;3)&lt;/span&gt; Druk op &lt;span class=&apos;accent&apos;&gt;‘Synchroniseren’&lt;/span&gt; om van de bestemming een spiegel van de bron te maken. Dit is onomkeerbaar. Gebruik dit met zorg.&lt;/p&gt;&lt;ul style=&apos;margin-top: 0px;&apos;&gt;&lt;li&gt;De twee mappen worden vergeleken.&lt;/li&gt;&lt;li&gt;Bestanden in de bestemming die niet in de bron bestaan, worden &lt;span style=&apos;color: #b51616; font-weight: 600;&apos;&gt;permanent verwijderd&lt;/span&gt;.&lt;/li&gt;&lt;li&gt;Bestanden in de bron die in de bestemming ontbreken, worden vanuit de bron gekopieerd.&lt;/li&gt;&lt;/ul&gt;&lt;p&gt;Dit bericht verdwijnt na de eerste uitvoering.&lt;/p&gt;</translation>
     </message>
 </context>
 </TS>

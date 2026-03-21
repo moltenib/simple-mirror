@@ -66,10 +66,6 @@ By continuing, you confirm that the selected paths are correct, and that you acc
         <translation>同步</translation>
     </message>
     <message>
-        <source>Combine</source>
-        <translation>合并</translation>
-    </message>
-    <message>
         <source>Stop</source>
         <translation>停止</translation>
     </message>
@@ -153,6 +149,22 @@ By continuing, you confirm that the selected paths are correct, and that you acc
         <source>Destination folder does not exist: %1</source>
         <translation>目标目录不存在：%1</translation>
     </message>
+    <message>
+        <source>Crashed</source>
+        <translation>崩溃</translation>
+    </message>
+    <message>
+        <source>The synchronization process crashed.</source>
+        <translation>同步进程已崩溃。</translation>
+    </message>
+    <message>
+        <source>The synchronization process crashed. On Windows this usually means the bundled rsync runtime is incomplete or stale.</source>
+        <translation>同步进程已崩溃。在 Windows 上，这通常意味着捆绑的 rsync 运行时不完整或已过期。</translation>
+    </message>
+    <message>
+        <source>Synchronization crashed</source>
+        <translation>同步已崩溃</translation>
+    </message>
 </context>
 <context>
     <name>RsyncRunner</name>
@@ -188,8 +200,8 @@ By continuing, you confirm that the selected paths are correct, and that you acc
         <translation>欢迎！</translation>
     </message>
     <message>
-        <source>&lt;p&gt;It appears that no backups have been performed with this installation yet. How it works:&lt;/p&gt;&lt;p&gt;&lt;span class=&apos;accent&apos;&gt;1)&lt;/span&gt; Choose an origin. This is the folder to be backed up. It will not be modified by this program.&lt;/p&gt;&lt;p&gt;&lt;span class=&apos;accent&apos;&gt;2)&lt;/span&gt; Insert a back-up medium, like an external drive. This will be the destination.&lt;/p&gt;&lt;p&gt;&lt;span class=&apos;accent&apos;&gt;3)&lt;/span&gt; Press &lt;span class=&apos;accent&apos;&gt;&amp;quot;Synchronize&amp;quot;&lt;/span&gt; to turn the destination into a mirror of the origin. This is irreversible. Use with care!&lt;/p&gt;&lt;ul style=&apos;margin-top: 0px;&apos;&gt;&lt;li&gt;The two folders are compared.&lt;/li&gt;&lt;li&gt;Files in the destination that do not exist in the origin will be &lt;span style=&apos;color: #b51616; font-weight: 600;&apos;&gt;permanently deleted&lt;/span&gt;.&lt;/li&gt;&lt;li&gt;Files in the origin that are missing in the destination are copied from the origin.&lt;/li&gt;&lt;/ul&gt;&lt;p&gt;&lt;span class=&apos;accent&apos;&gt;Tip&lt;/span&gt;: Holding Shift will turn &amp;quot;Synchronize&amp;quot; into &lt;span class=&apos;accent&apos;&gt;&amp;quot;Combine&amp;quot;&lt;/span&gt;; the contents of the destination are kept and merged with the origin&apos;s. Use this option if it fits your goals.&lt;br&gt;&lt;br&gt;This message will disappear after the first run.&lt;/p&gt;</source>
-        <translation>&lt;p&gt;看起来此安装尚未执行过任何备份。使用方法如下：&lt;/p&gt;&lt;p&gt;&lt;span class=&apos;accent&apos;&gt;1)&lt;/span&gt; 选择源目录。这是要备份的文件夹。本程序不会修改它。&lt;/p&gt;&lt;p&gt;&lt;span class=&apos;accent&apos;&gt;2)&lt;/span&gt; 插入备份介质，例如外置硬盘。该位置将作为目标目录。&lt;/p&gt;&lt;p&gt;&lt;span class=&apos;accent&apos;&gt;3)&lt;/span&gt; 点击 &lt;span class=&apos;accent&apos;&gt;「同步」&lt;/span&gt;，将目标目录变为源目录的镜像。此操作不可逆，请谨慎使用。&lt;/p&gt;&lt;ul style=&apos;margin-top: 0px;&apos;&gt;&lt;li&gt;系统会比较两个文件夹。&lt;/li&gt;&lt;li&gt;目标目录中在源目录不存在的文件将被 &lt;span style=&apos;color: #b51616; font-weight: 600;&apos;&gt;永久删除&lt;/span&gt;.&lt;/li&gt;&lt;li&gt;源目录中存在而目标目录缺失的文件会从源目录复制过去。&lt;/li&gt;&lt;/ul&gt;&lt;p&gt;&lt;span class=&apos;accent&apos;&gt;提示&lt;/span&gt;：按住 Shift 可将 「同步」 切换为 &lt;span class=&apos;accent&apos;&gt;「合并」&lt;/span&gt;；目标目录中的现有内容会保留，并与源目录内容合并。若符合您的目标，请使用此选项。&lt;br&gt;&lt;br&gt;此消息将在首次运行后消失。&lt;/p&gt;</translation>
+        <source>&lt;p&gt;It appears that no backups have been performed with this installation yet. How it works:&lt;/p&gt;&lt;p&gt;&lt;span class=&apos;accent&apos;&gt;1)&lt;/span&gt; Choose an origin. This is the folder to be backed up. It will not be modified by this program.&lt;/p&gt;&lt;p&gt;&lt;span class=&apos;accent&apos;&gt;2)&lt;/span&gt; Insert a back-up medium, like an external drive. This will be the destination.&lt;/p&gt;&lt;p&gt;&lt;span class=&apos;accent&apos;&gt;3)&lt;/span&gt; Press &lt;span class=&apos;accent&apos;&gt;&amp;quot;Synchronize&amp;quot;&lt;/span&gt; to turn the destination into a mirror of the origin. This is irreversible. Use with care!&lt;/p&gt;&lt;ul style=&apos;margin-top: 0px;&apos;&gt;&lt;li&gt;The two folders are compared.&lt;/li&gt;&lt;li&gt;Files in the destination that do not exist in the origin will be &lt;span style=&apos;color: #b51616; font-weight: 600;&apos;&gt;permanently deleted&lt;/span&gt;.&lt;/li&gt;&lt;li&gt;Files in the origin that are missing in the destination are copied from the origin.&lt;/li&gt;&lt;/ul&gt;&lt;p&gt;This message will disappear after the first run.&lt;/p&gt;</source>
+        <translation>&lt;p&gt;看起来此安装尚未执行过任何备份。使用方法如下：&lt;/p&gt;&lt;p&gt;&lt;span class=&apos;accent&apos;&gt;1)&lt;/span&gt; 选择源目录。这是要备份的文件夹。本程序不会修改它。&lt;/p&gt;&lt;p&gt;&lt;span class=&apos;accent&apos;&gt;2)&lt;/span&gt; 插入备份介质，例如外置硬盘。该位置将作为目标目录。&lt;/p&gt;&lt;p&gt;&lt;span class=&apos;accent&apos;&gt;3)&lt;/span&gt; 点击 &lt;span class=&apos;accent&apos;&gt;「同步」&lt;/span&gt;，将目标目录变为源目录的镜像。此操作不可逆，请谨慎使用。&lt;/p&gt;&lt;ul style=&apos;margin-top: 0px;&apos;&gt;&lt;li&gt;系统会比较两个文件夹。&lt;/li&gt;&lt;li&gt;目标目录中在源目录不存在的文件将被 &lt;span style=&apos;color: #b51616; font-weight: 600;&apos;&gt;永久删除&lt;/span&gt;。&lt;/li&gt;&lt;li&gt;源目录中存在而目标目录缺失的文件会从源目录复制过去。&lt;/li&gt;&lt;/ul&gt;&lt;p&gt;此消息将在首次运行后消失。&lt;/p&gt;</translation>
     </message>
 </context>
 </TS>

@@ -81,17 +81,6 @@ QPushButton#sync-button:enabled:hover {
   border: 1px solid #d33b3b;
 }
 
-QPushButton#sync-button[combineMode="true"] {
-  background-color: #1f4f7a;
-  border: 1px solid #2f8adf;
-  color: #e7f3ff;
-}
-
-QPushButton#sync-button[combineMode="true"]:enabled:hover {
-  background-color: #173d61;
-  border: 1px solid #5ea7eb;
-}
-
 QProgressBar#progress-bar {
   color: #e7f3ff;
   border: 1px solid #14344a;
@@ -137,28 +126,16 @@ void MainWindowStyle::applyTo(QMainWindow& window) const {
 SyncButton::SyncButton(QWidget* parent)
     : QPushButton(parent),
       synchronize_text_(QCoreApplication::translate("MainWindow", "Synchronize")),
-      combine_text_(QCoreApplication::translate("MainWindow", "Combine")),
       stop_text_(QCoreApplication::translate("MainWindow", "Stop")),
-      running_(false),
-      combine_mode_(false) {
+      running_(false) {
     setObjectName("sync-button");
     setSizePolicy(QSizePolicy::Fixed, QSizePolicy::Expanding);
-    setProperty("combineMode", false);
     recomputeMinimumWidth();
     updateVisualState();
 }
 
-void SyncButton::setRunningState(bool running, bool combine_mode) {
+void SyncButton::setRunningState(bool running) {
     running_ = running;
-    combine_mode_ = combine_mode;
-
-    const bool combine_property = !running_ && combine_mode_;
-    if (property("combineMode").toBool() != combine_property) {
-        setProperty("combineMode", combine_property);
-        style()->unpolish(this);
-        style()->polish(this);
-    }
-
     updateVisualState();
 }
 
@@ -176,7 +153,7 @@ void SyncButton::updateVisualState() {
         setText(stop_text_);
         return;
     }
-    setText(combine_mode_ ? combine_text_ : synchronize_text_);
+    setText(synchronize_text_);
 }
 
 ProgressBarWidget::ProgressBarWidget(QWidget* parent)

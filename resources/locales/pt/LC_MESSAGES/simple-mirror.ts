@@ -66,10 +66,6 @@ Ao continuar, confirma que os caminhos selecionados estão corretos e que assume
         <translation>Sincronizar</translation>
     </message>
     <message>
-        <source>Combine</source>
-        <translation>Combinar</translation>
-    </message>
-    <message>
         <source>Stop</source>
         <translation>Parar</translation>
     </message>
@@ -153,6 +149,22 @@ Ao continuar, confirma que os caminhos selecionados estão corretos e que assume
         <source>Destination folder does not exist: %1</source>
         <translation>A pasta de destino não existe: %1</translation>
     </message>
+    <message>
+        <source>Crashed</source>
+        <translation>Bloqueado</translation>
+    </message>
+    <message>
+        <source>The synchronization process crashed.</source>
+        <translation>O processo de sincronização bloqueou.</translation>
+    </message>
+    <message>
+        <source>The synchronization process crashed. On Windows this usually means the bundled rsync runtime is incomplete or stale.</source>
+        <translation>O processo de sincronização bloqueou. No Windows, isto normalmente significa que o runtime do rsync incluído está incompleto ou desatualizado.</translation>
+    </message>
+    <message>
+        <source>Synchronization crashed</source>
+        <translation>A sincronização bloqueou</translation>
+    </message>
 </context>
 <context>
     <name>RsyncRunner</name>
@@ -188,8 +200,8 @@ Ao continuar, confirma que os caminhos selecionados estão corretos e que assume
         <translation>Bem-vindo!</translation>
     </message>
     <message>
-        <source>&lt;p&gt;It appears that no backups have been performed with this installation yet. How it works:&lt;/p&gt;&lt;p&gt;&lt;span class=&apos;accent&apos;&gt;1)&lt;/span&gt; Choose an origin. This is the folder to be backed up. It will not be modified by this program.&lt;/p&gt;&lt;p&gt;&lt;span class=&apos;accent&apos;&gt;2)&lt;/span&gt; Insert a back-up medium, like an external drive. This will be the destination.&lt;/p&gt;&lt;p&gt;&lt;span class=&apos;accent&apos;&gt;3)&lt;/span&gt; Press &lt;span class=&apos;accent&apos;&gt;&amp;quot;Synchronize&amp;quot;&lt;/span&gt; to turn the destination into a mirror of the origin. This is irreversible. Use with care!&lt;/p&gt;&lt;ul style=&apos;margin-top: 0px;&apos;&gt;&lt;li&gt;The two folders are compared.&lt;/li&gt;&lt;li&gt;Files in the destination that do not exist in the origin will be &lt;span style=&apos;color: #b51616; font-weight: 600;&apos;&gt;permanently deleted&lt;/span&gt;.&lt;/li&gt;&lt;li&gt;Files in the origin that are missing in the destination are copied from the origin.&lt;/li&gt;&lt;/ul&gt;&lt;p&gt;&lt;span class=&apos;accent&apos;&gt;Tip&lt;/span&gt;: Holding Shift will turn &amp;quot;Synchronize&amp;quot; into &lt;span class=&apos;accent&apos;&gt;&amp;quot;Combine&amp;quot;&lt;/span&gt;; the contents of the destination are kept and merged with the origin&apos;s. Use this option if it fits your goals.&lt;br&gt;&lt;br&gt;This message will disappear after the first run.&lt;/p&gt;</source>
-        <translation>&lt;p&gt;Parece que ainda não foi efetuada nenhuma cópia de segurança com esta instalação. Como funciona:&lt;/p&gt;&lt;p&gt;&lt;span class=&apos;accent&apos;&gt;1)&lt;/span&gt; Escolha uma origem. Esta é a pasta a salvaguardar. Este programa não a irá modificar.&lt;/p&gt;&lt;p&gt;&lt;span class=&apos;accent&apos;&gt;2)&lt;/span&gt; Ligue um meio de cópia de segurança, como uma unidade externa. Esse será o destino.&lt;/p&gt;&lt;p&gt;&lt;span class=&apos;accent&apos;&gt;3)&lt;/span&gt; Prima &lt;span class=&apos;accent&apos;&gt;«Sincronizar»&lt;/span&gt; para transformar o destino num espelho da origem. Esta ação é irreversível. Utilize com cuidado.&lt;/p&gt;&lt;ul style=&apos;margin-top: 0px;&apos;&gt;&lt;li&gt;As duas pastas são comparadas.&lt;/li&gt;&lt;li&gt;Os ficheiros no destino que não existem na origem serão &lt;span style=&apos;color: #b51616; font-weight: 600;&apos;&gt;eliminados permanentemente&lt;/span&gt;.&lt;/li&gt;&lt;li&gt;Os ficheiros na origem que faltam no destino são copiados a partir da origem.&lt;/li&gt;&lt;/ul&gt;&lt;p&gt;&lt;span class=&apos;accent&apos;&gt;Dica&lt;/span&gt;: Se mantiver Shift premida, «Sincronizar» muda para &lt;span class=&apos;accent&apos;&gt;«Combinar»&lt;/span&gt;; o conteúdo do destino é mantido e combinado com o da origem. Use esta opção se corresponder ao seu objetivo.&lt;br&gt;&lt;br&gt;Esta mensagem desaparecerá após a primeira execução.&lt;/p&gt;</translation>
+        <source>&lt;p&gt;It appears that no backups have been performed with this installation yet. How it works:&lt;/p&gt;&lt;p&gt;&lt;span class=&apos;accent&apos;&gt;1)&lt;/span&gt; Choose an origin. This is the folder to be backed up. It will not be modified by this program.&lt;/p&gt;&lt;p&gt;&lt;span class=&apos;accent&apos;&gt;2)&lt;/span&gt; Insert a back-up medium, like an external drive. This will be the destination.&lt;/p&gt;&lt;p&gt;&lt;span class=&apos;accent&apos;&gt;3)&lt;/span&gt; Press &lt;span class=&apos;accent&apos;&gt;&amp;quot;Synchronize&amp;quot;&lt;/span&gt; to turn the destination into a mirror of the origin. This is irreversible. Use with care!&lt;/p&gt;&lt;ul style=&apos;margin-top: 0px;&apos;&gt;&lt;li&gt;The two folders are compared.&lt;/li&gt;&lt;li&gt;Files in the destination that do not exist in the origin will be &lt;span style=&apos;color: #b51616; font-weight: 600;&apos;&gt;permanently deleted&lt;/span&gt;.&lt;/li&gt;&lt;li&gt;Files in the origin that are missing in the destination are copied from the origin.&lt;/li&gt;&lt;/ul&gt;&lt;p&gt;This message will disappear after the first run.&lt;/p&gt;</source>
+        <translation>&lt;p&gt;Parece que ainda não foi efetuada nenhuma cópia de segurança com esta instalação. Como funciona:&lt;/p&gt;&lt;p&gt;&lt;span class=&apos;accent&apos;&gt;1)&lt;/span&gt; Escolha uma origem. Esta é a pasta a salvaguardar. Este programa não a irá modificar.&lt;/p&gt;&lt;p&gt;&lt;span class=&apos;accent&apos;&gt;2)&lt;/span&gt; Ligue um meio de cópia de segurança, como uma unidade externa. Esse será o destino.&lt;/p&gt;&lt;p&gt;&lt;span class=&apos;accent&apos;&gt;3)&lt;/span&gt; Prima &lt;span class=&apos;accent&apos;&gt;«Sincronizar»&lt;/span&gt; para transformar o destino num espelho da origem. Esta ação é irreversível. Utilize com cuidado.&lt;/p&gt;&lt;ul style=&apos;margin-top: 0px;&apos;&gt;&lt;li&gt;As duas pastas são comparadas.&lt;/li&gt;&lt;li&gt;Os ficheiros no destino que não existem na origem serão &lt;span style=&apos;color: #b51616; font-weight: 600;&apos;&gt;eliminados permanentemente&lt;/span&gt;.&lt;/li&gt;&lt;li&gt;Os ficheiros na origem que faltam no destino são copiados a partir da origem.&lt;/li&gt;&lt;/ul&gt;&lt;p&gt;Esta mensagem desaparecerá após a primeira execução.&lt;/p&gt;</translation>
     </message>
 </context>
 </TS>
